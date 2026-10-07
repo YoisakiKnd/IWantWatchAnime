@@ -24,6 +24,9 @@ jobs:
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
+          # 正文要读标注 tag 的说明，所以显式把 tag 一起取下来
+          # （fetch-depth: 0 本来就会带 tag，这里写明是为了别被后来的改动悄悄弄丢）。
+          fetch-tags: true
           # push tag 时 github.sha 就是那个 tag 指向的提交，不用再指定 ref；
           # 只有手动触发才需要按输入去取对应 tag。
           ref: ${{ inputs.tag && format('refs/tags/{0}', inputs.tag) || github.sha }}
@@ -58,15 +61,24 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "${{ inputs.tag || github.ref_name }}" \
+          tag="${{ inputs.tag || github.ref_name }}"
+          # 正文用标注 tag 的说明——那里写的才是"这个版本改了什么"。
+          # --generate-notes 只看提交标题，会把这段丢掉，正文就只剩一个 changelog 链接。
+          notes=$(git tag -l --format='%(contents)' "$tag")
+          if [ -z "$notes" ]; then
+            notes="suzu $tag"        # 轻量 tag（没写说明）时的兜底
+          fi
+          body=$(printf '%s\n\n---\n\n**完整改动**：https://github.com/%s/commits/%s\n' \
+                 "$notes" "$GITHUB_REPOSITORY" "$tag")
+          gh release create "$tag" \
             dist/suzu-linux-amd64 \
             dist/suzu-linux-arm64 \
             dist/suzu-linux-armv6 \
             dist/suzu-linux-armv7 \
             dist/suzu-*-armv7.tar.gz \
             dist/SHA256SUMS \
-            --title "suzu ${{ inputs.tag || github.ref_name }}" \
-            --generate-notes
+            --title "suzu $tag" \
+            --notes "$body"
 
       - name: 发完之后回头验一遍（能下载、校验和对得上）
         env:
