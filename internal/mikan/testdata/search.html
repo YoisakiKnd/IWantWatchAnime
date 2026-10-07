@@ -1,0 +1,708 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="keywords" content="新番,动漫,动漫下載,新番下载,animation,bangumi,动画,蜜柑计划,Mikan Project" />
+    <meta name="description" content="蜜柑计划：新一代的动漫下载站" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- 若用户有Google Chrome Frame,那么ie浏览时让IE使用chrome内核 -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+    <!-- 若是双核浏览器,默认webkit渲染(chrome) -->
+    <meta name="renderer" content="webkit">
+    <title>Mikan Project - &#x641C;&#x7D22;&#x7ED3;&#x679C;</title>
+
+    <!-- here put import css lib -->
+    
+    
+        <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.min.css?v=7s5uDGW3AHqw6xtJmNNtr-OBRJUlgkNJEo78P4b0yRw" />
+        <link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=3dkvEK0WLHRJ7_Csr0BZjAWxERc5WH7bdeUya2aXxdU" />
+        <link rel="stylesheet" href="/css/thirdparty.min.css?v=c2SZy6n-55iljz60XCAALXejEZvjc43kgwamU5DAYUU" />
+        <link rel="stylesheet" href="/css/animate.min.css?v=w_eXqGX0NdMPQ0LZNhdQ8B-DQMYAxelvLoIP39dzmus" />
+        <link rel="stylesheet" href="/css/mikan.min.css?v=BgnOAfR_3VfhpdfW0WBlvPvNAZl933rSFc0qtUGyqJg" />
+
+        <script src="/lib/jquery/dist/jquery.min.js?v=BbhdlvQf_xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44"></script>
+        <script src="/lib/bootstrap/dist/js/bootstrap.min.js?v=KXn5puMvxCw-dAYznun-drMdG1IFl3agK0p_pqT9KAo"></script>
+        <script src="/js/thirdparty.min.js?v=NsK_w5fw7Nm4ZPm4eZDgsivasZNgT6ArhIjmj-bRnR0"></script>
+        <script src="/js/darkreader.min.js?v=Lr_8XODLEDSPtT6LqaeLKzREs4jocJUzV8HvQPItIic"></script>
+        <script src="/js/ScrollMagic.min.js?v=1xuIM3UJWEZX_wWN9zrA8W7CWukfsMaEqb759CeHo3U"></script>
+        <script src="/js/jquery.ScrollMagic.min.js?v=SyygQh9gWWfvyS13QwI0SKGAQyHDachlaigiK4X59iw"></script>
+    
+
+    <link rel="icon" href="/images/favicon.ico?v=2" />
+    <link rel="apple-touch-icon" href="\Images\apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="\Images\apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="\Images\apple-touch-icon-180x180.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="\Images\apple-touch-icon-144x144.png">
+
+    <script>
+        (function (i, s, o, g, r, a, m) {
+            i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
+                (i[r].q = i[r].q || []).push(arguments)
+            }, i[r].l = 1 * new Date(); a = s.createElement(o),
+                m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+        })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+        ga('create', 'UA-8911610-8', 'auto');
+        ga('send', 'pageview');
+    </script>
+</head>
+<body class="main">
+    <div id="sk-header" class="hidden-xs hidden-sm">
+        <div id="sk-top-nav" class="container">
+            <a id="logo" href="/" style="width:205px;"><img id="mikan-pic" src="/images/mikan-pic.png" /><img src="/images/mikan-text.svg" style="height:30px;" /></a>
+            <div id="nav-list">
+                <ul class="list-inline nav-ul">
+                    <li class="">
+                        <div class="sk-col"><a href="/"><i class="fa fa-home fa-lg"></i>主页</a></div>
+                    </li>
+                    <li class="">
+                        <div class="sk-col"><a href="/Home/MyBangumi"><i class="fa fa-rss fa-lg"></i>订阅</a></div>
+                    </li>
+                    <li class="">
+                        <div class="sk-col"><a href="/Home/Classic"><i class="fa fa-slack fa-lg"></i>列表</a></div>
+                    </li>
+                </ul>
+            </div>
+            <div class="search-form">
+                <form method="get" action="/Home/Search">
+                    <div class="form-group has-feedback">
+                        <label for="search" class="sr-only">搜索</label>
+                        <input type="text" class="form-control input-sm" name="searchstr" id="header-search" placeholder="搜索" value="&#x846C;&#x9001;&#x7684;&#x8299;&#x8389;&#x83B2;">
+                        <span class="glyphicon glyphicon-search form-control-feedback"></span>
+                    </div>
+                </form>
+            </div>
+
+            
+
+<section id="login">
+        <div id="user-login" class="pull-right">
+            <a href="/Account/Register" class="text-right">注册</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <a onclick="ToggleActive(this)" class="text-right" data-toggle="popover-x" data-target="#login-popover" data-placement="bottom bottom-right" rel="popover">登录</a>
+<form action="/Account/Login?ReturnUrl=%2FHome%2FSearch" class="form-vertical" method="post">                <div id="login-popover" class="popover popover-default">
+                    <div class="arrow"></div>
+                    <div id="login-popover-conent">
+                        <div id="login-popover-input">
+                            <div id="login-popover-div-username">
+                                <img src="/images/user-name_login_icon.png" />
+                                <input type="text" placeholder="用户名" id="login-popover-input-username" name="UserName" />
+                            </div>
+                            <div id="login-popover-div-password">
+                                <img src="/images/password_login_icon.png" style="margin-left:3px;" />
+                                <input type="password" placeholder="密码" id="login-popover-input-password" name="Password" />
+                            </div>
+                        </div>
+                        <button id="login-popover-submit" type="submit" class="btn">登&nbsp;&nbsp;&nbsp;录</button>
+                        <div class="checkbox" id="login-popover-password">
+                            <label id="login-popover-remember-password"><input type="checkbox" value="true" name="RememberMe"><input type="hidden" value="false" name="RememberMe">记住密码</label>
+                            <div id="login-popover-forget-password" class="pull-right"><a href="/Account/ForgotPassword" class="forget-password">忘记密码</a></div>
+                        </div>
+
+                        <a id="login-popover-create-account">还没有账号？赶紧来注册一个吧~</a>
+                    </div>
+                </div>
+<input name="__RequestVerificationToken" type="hidden" value="CfDJ8GmEyw_wMGJKtQ58HXHTm3Q1HRrXGd-83VoxXttMyXaAPFsXWPHDFWEvbCROs6RRClhEBu3WpN2dU3_EakyJ4cSESdXLB8sB4XHZp3W52aJekNDczzSeyO2-fLWn8jIpkdP6zH6hrML_jNuH8CVVmqQ" /></form>        </div>
+        <script>
+            var AdvancedSubscriptionEnabled = false;
+        </script>
+</section>
+        </div>
+        <div class="ribbon">
+            <span class="ribbon-color1"></span>
+            <span class="ribbon-color2"></span>
+            <span class="ribbon-color3"></span>
+            <span class="ribbon-color4"></span>
+            <span class="ribbon-color5"></span>
+            <span class="ribbon-color6"></span>
+            <span class="ribbon-color7"></span>
+        </div>
+    </div>
+    <div class="m-home-nav hidden-lg hidden-md" id="sk-mobile-header">
+        <div class="m-home-tool-left clickable" data-toggle="modal" data-target="#modal-nav">
+            <i class="fa fa-bars" aria-hidden="true"></i>
+        </div>
+        <div class="m-home-tool-left"></div>
+        <div style="text-align: center; height:100%;flex:1;">
+            <a href="/" style="text-decoration:none">
+                <img src="/images/mikan-pic.png" style="height: 3rem;margin-top: 0.5rem;">
+                <img src="/images/mikan-text.png" style="height: 1.5rem;margin-top: 0.5rem;">
+            </a>
+        </div>
+        <div class="m-home-tool-right clickable" data-toggle="modal" data-target="#modal-login">
+            <i class="fa fa-user" aria-hidden="true" style="margin-right: 1rem;"></i>
+        </div>
+        <div class="m-home-tool-right clickable" onclick="ShowNavSearch()">
+            <i class="fa fa-search" aria-hidden="true"></i>
+        </div>
+    </div>
+    <div class="m-nav-search" style="width: 100%;">
+        <div style="flex: 1;">
+            <form method="get" action="/Home/Search">
+                <div class="input-group">
+                    <span class="input-group-addon" id="sizing-addon1" style="border: none;background-color: white;">
+                        <i class="fa fa-search" aria-hidden="true"></i>
+                    </span>
+                    <input type="text" class="form-control" placeholder="搜索" name="searchstr" aria-describedby="sizing-addon1" style="border: none;font-size:16px;">
+                </div>
+            </form>
+        </div>
+        <div style="width: 4rem;" onclick="HideNavSearch()">
+            <span style="font-size: 1.25rem;">取消</span>
+        </div>
+    </div>
+    
+    <div id="sk-container" class="container hidden-sm hidden-xs">
+        <div class="pull-left leftbar-container">
+            <div class="leftbar-nav">
+                <div class="header">相关字幕组</div>
+                <ul class="list-unstyled">
+                    <li class="leftbar-item">
+                        <span>
+                                <a class="subgroup-longname active" onclick="AddFilter(this)" data-subgroupid="">显示全部</a>
+                        </span>
+                    </li>
+                        <li class="leftbar-item">
+                            <span>
+                                    <a class="subgroup-longname" onclick="AddFilter(this)" data-subgroupid="615">Kirara Fantasia</a>
+                            </span>
+                        </li>
+                        <li class="leftbar-item">
+                            <span>
+                                    <a class="subgroup-longname" onclick="AddFilter(this)" data-subgroupid="611">&#x5317;&#x5B87;&#x6CBB;&#x5B57;&#x5E55;&#x7EC4;</a>
+                            </span>
+                        </li>
+                        <li class="leftbar-item">
+                            <span>
+                                    <a class="subgroup-longname" onclick="AddFilter(this)" data-subgroupid="203">&#x685C;&#x90FD;&#x5B57;&#x5E55;&#x7EC4;</a>
+                            </span>
+                        </li>
+                        <li class="leftbar-item">
+                            <span>
+                                    <a class="subgroup-longname" onclick="AddFilter(this)" data-subgroupid="37">&#x5343;&#x590F;&#x5B57;&#x5E55;&#x7EC4;</a>
+                            </span>
+                        </li>
+                        <li class="leftbar-item">
+                            <span>
+                                    <a class="subgroup-longname" onclick="AddFilter(this)" data-subgroupid="12">&#x60A0;&#x54C8;&#x7483;&#x7FBD;&#x5B57;&#x5E55;&#x793E;</a>
+                            </span>
+                        </li>
+                        <li class="leftbar-item">
+                            <span>
+                                    <a class="subgroup-longname" onclick="AddFilter(this)" data-subgroupid="573">&#x79BB;&#x8C31;Sub</a>
+                            </span>
+                        </li>
+                        <li class="leftbar-item">
+                            <span>
+                                    <a class="subgroup-longname" onclick="AddFilter(this)" data-subgroupid="382">&#x55B5;&#x840C;&#x5976;&#x8336;&#x5C4B;</a>
+                            </span>
+                        </li>
+                        <li class="leftbar-item">
+                            <span>
+                                    <a class="subgroup-longname" onclick="AddFilter(this)" data-subgroupid="578">&#x62E8;&#x96EA;&#x5BFB;&#x6625;</a>
+                            </span>
+                        </li>
+                        <li class="leftbar-item">
+                            <span>
+                                    <a class="subgroup-longname" onclick="AddFilter(this)" data-subgroupid="202">&#x751F;&#x8089;/&#x4E0D;&#x660E;&#x5B57;&#x5E55;</a>
+                            </span>
+                        </li>
+                        <li class="leftbar-item">
+                            <span>
+                                    <a class="subgroup-longname" onclick="AddFilter(this)" data-subgroupid="370">LoliHouse</a>
+                            </span>
+                        </li>
+                        <li class="leftbar-item">
+                            <span>
+                                    <a class="subgroup-longname" onclick="AddFilter(this)" data-subgroupid="583">ANi</a>
+                            </span>
+                        </li>
+                        <li class="leftbar-item">
+                            <span>
+                                    <a class="subgroup-longname" onclick="AddFilter(this)" data-subgroupid="1236">&#x7EFF;&#x8336;&#x5B57;&#x5E55;&#x7EC4;</a>
+                            </span>
+                        </li>
+                        <li class="leftbar-item">
+                            <span>
+                                    <a class="subgroup-longname" onclick="AddFilter(this)" data-subgroupid="45">&#x7231;&#x604B;&#x5B57;&#x5E55;&#x793E;</a>
+                            </span>
+                        </li>
+                        <li class="leftbar-item">
+                            <span>
+                                    <a class="subgroup-longname" onclick="AddFilter(this)" data-subgroupid="213">&#x6F2B;&#x732B;&#x5B57;&#x5E55;&#x7EC4;&amp;&#x7231;&#x604B;&#x5B57;&#x5E55;&#x7EC4;</a>
+                            </span>
+                        </li>
+                        <li class="leftbar-item">
+                            <span>
+                                    <a class="subgroup-longname" onclick="AddFilter(this)" data-subgroupid="534">&#x5929;&#x6708;&#x52A8;&#x6F2B;&amp;&#x53D1;&#x5E03;&#x7EC4;</a>
+                            </span>
+                        </li>
+                        <li class="leftbar-item">
+                            <span>
+                                    <a class="subgroup-longname" onclick="AddFilter(this)" data-subgroupid="639">&#x6CB8;&#x7F8A;&#x7F8A;&#x5B57;&#x5E55;&#x7EC4;</a>
+                            </span>
+                        </li>
+                        <li class="leftbar-item">
+                            <span>
+                                    <a class="subgroup-longname" onclick="AddFilter(this)" data-subgroupid="364">&#x4E91;&#x5149;&#x5B57;&#x5E55;&#x7EC4;</a>
+                            </span>
+                        </li>
+                        <li class="leftbar-item">
+                            <span>
+                                    <a class="subgroup-longname" onclick="AddFilter(this)" data-subgroupid="1231">&#x6CB8;&#x73ED;&#x4E9A;&#x9A6C;&#x5236;&#x4F5C;&#x7EC4;</a>
+                            </span>
+                        </li>
+                        <li class="leftbar-item">
+                            <span>
+                                    <a class="subgroup-longname" onclick="AddFilter(this)" data-subgroupid="34">&#x6781;&#x5F71;&#x5B57;&#x5E55;&#x793E;</a>
+                            </span>
+                        </li>
+                        <li class="leftbar-item">
+                            <span>
+                                    <a class="subgroup-longname" onclick="AddFilter(this)" data-subgroupid="575">DBD&#x5236;&#x4F5C;&#x7EC4;</a>
+                            </span>
+                        </li>
+                        <li class="leftbar-item">
+                            <span>
+                                    <a class="subgroup-longname" onclick="AddFilter(this)" data-subgroupid="594">&#x7EC7;&#x68A6;&#x5B57;&#x5E55;&#x7EC4;</a>
+                            </span>
+                        </li>
+                        <li class="leftbar-item">
+                            <span>
+                                    <a class="subgroup-longname" onclick="AddFilter(this)" data-subgroupid="1212">H-Enc</a>
+                            </span>
+                        </li>
+                        <li class="leftbar-item">
+                            <span>
+                                    <a class="subgroup-longname" onclick="AddFilter(this)" data-subgroupid="1254"> 7&#xB3;ACG</a>
+                            </span>
+                        </li>
+                        <li class="leftbar-item">
+                            <span>
+                                    <a class="subgroup-longname" onclick="AddFilter(this)" data-subgroupid="1230">Prejudice-Studio</a>
+                            </span>
+                        </li>
+                        <li class="leftbar-item">
+                            <span>
+                                    <a class="subgroup-longname" onclick="AddFilter(this)" data-subgroupid="552">Lilith-Raws</a>
+                            </span>
+                        </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="central-container">
+            <div class="header2">
+                <span class="header2-text">相关推荐</span>
+            </div>
+
+            <div style="margin-top: 10px; margin-bottom: 10px;">
+                
+
+<div style="width:100%; margin-right: auto; margin-left: auto;" class="hidden-xs hidden-sm">
+    <a href="https://equity.tmall.com/tm?agentId=030f9003a26d4361&amp;bc_fl_src=tmall_market_llb_1_2698459&amp;llbPlatform=_pube&amp;llbOsd=1&amp;di=__IDFA__&amp;dim=__IMEI__&amp;oaid=__OAID__&amp;caid=__CAID__&amp;sy=llb" onclick="ga('send', 'event', 'sswj_lg', 'clicked', 'ad');">
+        <img src="/images/SSWJ/sswj9_lg.jpg" style='height: 100%; width: 100%; object-fit: contain' />
+    </a>
+</div>
+
+<div style="width:100%; margin-right: auto; margin-left: auto;" class="hidden-lg hidden-md">
+    <a href="https://equity.tmall.com/tm?agentId=030f9003a26d4361&amp;bc_fl_src=tmall_market_llb_1_2698459&amp;llbPlatform=_pube&amp;llbOsd=1&amp;di=__IDFA__&amp;dim=__IMEI__&amp;oaid=__OAID__&amp;caid=__CAID__&amp;sy=llb" onclick="ga('send', 'event', 'sswj_sm', 'clicked', 'ad');">
+        <img src="/images/SSWJ/sswj9_sm.jpg" style='height: 100%; width: 100%; object-fit: contain' />
+    </a>
+</div>
+            </div>
+
+            <ul class="list-inline an-ul" style="margin-top:20px;">
+                    <li>
+                        <a href="/Home/Bangumi/3141" target="_blank">
+                            <span data-src="/images/Bangumi/202309/5ce9fed1.jpg?width=400&height=400&format=webp" class="b-lazy"></span>
+                            <div class="an-info">
+                                <div class="an-info-group">
+                                    <div class="an-text" title="&#x846C;&#x9001;&#x7684;&#x8299;&#x8389;&#x83B2;" style="white-space:nowrap; width:170px; overflow:hidden; text-overflow:ellipsis;line-height: 40px;">&#x846C;&#x9001;&#x7684;&#x8299;&#x8389;&#x83B2;</div>
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/Home/Bangumi/3821" target="_blank">
+                            <span data-src="/images/Bangumi/202601/87a60922.jpg?width=400&height=400&format=webp" class="b-lazy"></span>
+                            <div class="an-info">
+                                <div class="an-info-group">
+                                    <div class="an-text" title="&#x846C;&#x9001;&#x7684;&#x8299;&#x8389;&#x83B2; &#x7B2C;&#x4E8C;&#x5B63;" style="white-space:nowrap; width:170px; overflow:hidden; text-overflow:ellipsis;line-height: 40px;">&#x846C;&#x9001;&#x7684;&#x8299;&#x8389;&#x83B2; &#x7B2C;&#x4E8C;&#x5B63;</div>
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+            </ul>
+            <div class="header2" style="border-bottom:none;">
+                <span class="header2-text">搜索结果 <a class="mikan-rss" data-placement="bottom" data-toggle="tooltip" data-original-title="RSS" target="_blank"><i class="fa fa-rss-square"></i></a></span>
+            </div>
+            
+<div class="episode-table">
+    <div class="copy-info-row">
+        <button type="button" class="btn btn-default btn-xs js-copy-selected" disabled>复制选中磁连</button>
+        <span class="text-muted js-selected-count">已选 0 项</span>
+        <span class="text-success js-copy-status" style="display:none;">已复制</span>
+    </div>
+    <table class="table table-striped tbl-border fadeIn">
+        <thead>
+            <tr>
+                <th width="5%"><input type="checkbox" class="js-select-all" aria-label="选择全部" /></th>
+                <th width="60%">番组名</th>
+                <th width="8%">大小</th>
+                <th width="17%">更新时间</th>
+                <th width="5%">下载</th>
+                <th width="5%">播放</th>
+            </tr>
+        </thead>
+        <tbody>
+                <tr class="js-search-results-row" data-itemindex="0"
+                    style="">
+                    <td>
+                        <input type="checkbox" class="js-episode-select" data-magnet="magnet:?xt=urn:btih:f8651444a2c0b3ff7e3da3cbd75da58ef5f09e19&amp;tr=http%3a%2f%2ft.nyaatracker.com%2fannounce&amp;tr=http%3a%2f%2ftracker.kamigami.org%3a2710%2fannounce&amp;tr=http%3a%2f%2fshare.camoe.cn%3a8080%2fannounce&amp;tr=http%3a%2f%2fopentracker.acgnx.se%2fannounce&amp;tr=http%3a%2f%2fanidex.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2ft.acg.rip%3a6699%2fannounce&amp;tr=https%3a%2f%2ftr.bangumi.moe%3a9696%2fannounce&amp;tr=udp%3a%2f%2ftr.bangumi.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2fopen.acgtracker.com%3a1096%2fannounce&amp;tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337%2fannounce"
+                            aria-label="选择此行" />
+                    </td>
+                    <td>
+                        <a href="/Home/Episode/f8651444a2c0b3ff7e3da3cbd75da58ef5f09e19" target="_blank"
+                            class="magnet-link-wrap">[7&#xB3;ACG] &#x846C;&#x9001;&#x7684;&#x8299;&#x8389;&#x83B2;/Sousou no Frieren S01 | 01-28&#x2B;SPx11 [&#x7B80;&#x7E41;&#x5B57;&#x5E55;] BDrip 1080p x265 OPUS 2.0</a>
+                        <a data-clipboard-text="magnet:?xt=urn:btih:f8651444a2c0b3ff7e3da3cbd75da58ef5f09e19&amp;tr=http%3a%2f%2ft.nyaatracker.com%2fannounce&amp;tr=http%3a%2f%2ftracker.kamigami.org%3a2710%2fannounce&amp;tr=http%3a%2f%2fshare.camoe.cn%3a8080%2fannounce&amp;tr=http%3a%2f%2fopentracker.acgnx.se%2fannounce&amp;tr=http%3a%2f%2fanidex.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2ft.acg.rip%3a6699%2fannounce&amp;tr=https%3a%2f%2ftr.bangumi.moe%3a9696%2fannounce&amp;tr=udp%3a%2f%2ftr.bangumi.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2fopen.acgtracker.com%3a1096%2fannounce&amp;tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337%2fannounce" class="js-magnet magnet-link">[复制磁连]</a>
+                    </td>
+                    <td>48.5GB</td>
+                    <td>2026/08/28 05:32</td>
+                    <td>
+                        <a
+                            href="/Download/20260828/f8651444a2c0b3ff7e3da3cbd75da58ef5f09e19.torrent">
+                            <img src="/images/download_icon_blue.svg" style="margin-left: 2px;width: 20px;height:15px;">
+                        </a>
+                    </td>
+                    <td>
+                        <a target="_blank"
+                            href="https://keepshare.org/rclukaia/magnet%3A%3Fxt%3Durn%3Abtih%3Af8651444a2c0b3ff7e3da3cbd75da58ef5f09e19">
+                            <i class="fa fa-play-circle" style="color: #47c1c5; margin-left: 4px; font-size: 18px;"></i>
+                        </a>
+                    </td>
+                </tr>
+                <tr class="js-search-results-row" data-itemindex="1"
+                    style="">
+                    <td>
+                        <input type="checkbox" class="js-episode-select" data-magnet="magnet:?xt=urn:btih:3532d30205dbc53cdaa7d03285b5cf497258fa7d&amp;tr=http%3a%2f%2ft.nyaatracker.com%2fannounce&amp;tr=http%3a%2f%2ftracker.kamigami.org%3a2710%2fannounce&amp;tr=http%3a%2f%2fshare.camoe.cn%3a8080%2fannounce&amp;tr=http%3a%2f%2fopentracker.acgnx.se%2fannounce&amp;tr=http%3a%2f%2fanidex.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2ft.acg.rip%3a6699%2fannounce&amp;tr=https%3a%2f%2ftr.bangumi.moe%3a9696%2fannounce&amp;tr=udp%3a%2f%2ftr.bangumi.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2fopen.acgtracker.com%3a1096%2fannounce&amp;tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337%2fannounce"
+                            aria-label="选择此行" />
+                    </td>
+                    <td>
+                        <a href="/Home/Episode/3532d30205dbc53cdaa7d03285b5cf497258fa7d" target="_blank"
+                            class="magnet-link-wrap">[Shiniori-Raws]&#x846C;&#x9001;&#x7684;&#x8299;&#x8389;&#x83B2; &#x7B2C;&#x4E8C;&#x5B63;/Sousou no Frieren S2 4k 2160p x265 10bit</a>
+                        <a data-clipboard-text="magnet:?xt=urn:btih:3532d30205dbc53cdaa7d03285b5cf497258fa7d&amp;tr=http%3a%2f%2ft.nyaatracker.com%2fannounce&amp;tr=http%3a%2f%2ftracker.kamigami.org%3a2710%2fannounce&amp;tr=http%3a%2f%2fshare.camoe.cn%3a8080%2fannounce&amp;tr=http%3a%2f%2fopentracker.acgnx.se%2fannounce&amp;tr=http%3a%2f%2fanidex.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2ft.acg.rip%3a6699%2fannounce&amp;tr=https%3a%2f%2ftr.bangumi.moe%3a9696%2fannounce&amp;tr=udp%3a%2f%2ftr.bangumi.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2fopen.acgtracker.com%3a1096%2fannounce&amp;tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337%2fannounce" class="js-magnet magnet-link">[复制磁连]</a>
+                    </td>
+                    <td>21.1GB</td>
+                    <td>2026/08/22 21:17</td>
+                    <td>
+                        <a
+                            href="/Download/20260822/3532d30205dbc53cdaa7d03285b5cf497258fa7d.torrent">
+                            <img src="/images/download_icon_blue.svg" style="margin-left: 2px;width: 20px;height:15px;">
+                        </a>
+                    </td>
+                    <td>
+                        <a target="_blank"
+                            href="https://keepshare.org/rclukaia/magnet%3A%3Fxt%3Durn%3Abtih%3A3532d30205dbc53cdaa7d03285b5cf497258fa7d">
+                            <i class="fa fa-play-circle" style="color: #47c1c5; margin-left: 4px; font-size: 18px;"></i>
+                        </a>
+                    </td>
+                </tr>
+                <tr class="js-search-results-row" data-itemindex="2"
+                    style="">
+                    <td>
+                        <input type="checkbox" class="js-episode-select" data-magnet="magnet:?xt=urn:btih:81e8ddc2cff1f077de8f3fbb48b23a932da0dd92&amp;tr=http%3a%2f%2ft.nyaatracker.com%2fannounce&amp;tr=http%3a%2f%2ftracker.kamigami.org%3a2710%2fannounce&amp;tr=http%3a%2f%2fshare.camoe.cn%3a8080%2fannounce&amp;tr=http%3a%2f%2fopentracker.acgnx.se%2fannounce&amp;tr=http%3a%2f%2fanidex.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2ft.acg.rip%3a6699%2fannounce&amp;tr=https%3a%2f%2ftr.bangumi.moe%3a9696%2fannounce&amp;tr=udp%3a%2f%2ftr.bangumi.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2fopen.acgtracker.com%3a1096%2fannounce&amp;tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337%2fannounce"
+                            aria-label="选择此行" />
+                    </td>
+                    <td>
+                        <a href="/Home/Episode/81e8ddc2cff1f077de8f3fbb48b23a932da0dd92" target="_blank"
+                            class="magnet-link-wrap">[Xspitfire911] &#x846C;&#x9001;&#x7684;&#x8299;&#x8389;&#x83B2;/Sousou No Frieren S01 &#x2B; S02 BDRIP 1080p X265 10bit VOSTFR</a>
+                        <a data-clipboard-text="magnet:?xt=urn:btih:81e8ddc2cff1f077de8f3fbb48b23a932da0dd92&amp;tr=http%3a%2f%2ft.nyaatracker.com%2fannounce&amp;tr=http%3a%2f%2ftracker.kamigami.org%3a2710%2fannounce&amp;tr=http%3a%2f%2fshare.camoe.cn%3a8080%2fannounce&amp;tr=http%3a%2f%2fopentracker.acgnx.se%2fannounce&amp;tr=http%3a%2f%2fanidex.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2ft.acg.rip%3a6699%2fannounce&amp;tr=https%3a%2f%2ftr.bangumi.moe%3a9696%2fannounce&amp;tr=udp%3a%2f%2ftr.bangumi.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2fopen.acgtracker.com%3a1096%2fannounce&amp;tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337%2fannounce" class="js-magnet magnet-link">[复制磁连]</a>
+                    </td>
+                    <td>46.5GB</td>
+                    <td>2026/08/22 21:16</td>
+                    <td>
+                        <a
+                            href="/Download/20260822/81e8ddc2cff1f077de8f3fbb48b23a932da0dd92.torrent">
+                            <img src="/images/download_icon_blue.svg" style="margin-left: 2px;width: 20px;height:15px;">
+                        </a>
+                    </td>
+                    <td>
+                        <a target="_blank"
+                            href="https://keepshare.org/rclukaia/magnet%3A%3Fxt%3Durn%3Abtih%3A81e8ddc2cff1f077de8f3fbb48b23a932da0dd92">
+                            <i class="fa fa-play-circle" style="color: #47c1c5; margin-left: 4px; font-size: 18px;"></i>
+                        </a>
+                    </td>
+                </tr>
+                <tr class="js-search-results-row" data-itemindex="3"
+                    style="">
+                    <td>
+                        <input type="checkbox" class="js-episode-select" data-magnet="magnet:?xt=urn:btih:4ca78745e6d0c84dc8b46cd69dd605bbdbe72881&amp;tr=http%3a%2f%2ft.nyaatracker.com%2fannounce&amp;tr=http%3a%2f%2ftracker.kamigami.org%3a2710%2fannounce&amp;tr=http%3a%2f%2fshare.camoe.cn%3a8080%2fannounce&amp;tr=http%3a%2f%2fopentracker.acgnx.se%2fannounce&amp;tr=http%3a%2f%2fanidex.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2ft.acg.rip%3a6699%2fannounce&amp;tr=https%3a%2f%2ftr.bangumi.moe%3a9696%2fannounce&amp;tr=udp%3a%2f%2ftr.bangumi.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2fopen.acgtracker.com%3a1096%2fannounce&amp;tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337%2fannounce"
+                            aria-label="选择此行" />
+                    </td>
+                    <td>
+                        <a href="/Home/Episode/4ca78745e6d0c84dc8b46cd69dd605bbdbe72881" target="_blank"
+                            class="magnet-link-wrap">[Shiniori-Raws] &#x846C;&#x9001;&#x7684;&#x8299;&#x8389;&#x83B2; &#x7B2C;&#x4E8C;&#x5B63;/Sousou no Frieren S2 (BD 1920x1080 x265 10bit FLAC)</a>
+                        <a data-clipboard-text="magnet:?xt=urn:btih:4ca78745e6d0c84dc8b46cd69dd605bbdbe72881&amp;tr=http%3a%2f%2ft.nyaatracker.com%2fannounce&amp;tr=http%3a%2f%2ftracker.kamigami.org%3a2710%2fannounce&amp;tr=http%3a%2f%2fshare.camoe.cn%3a8080%2fannounce&amp;tr=http%3a%2f%2fopentracker.acgnx.se%2fannounce&amp;tr=http%3a%2f%2fanidex.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2ft.acg.rip%3a6699%2fannounce&amp;tr=https%3a%2f%2ftr.bangumi.moe%3a9696%2fannounce&amp;tr=udp%3a%2f%2ftr.bangumi.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2fopen.acgtracker.com%3a1096%2fannounce&amp;tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337%2fannounce" class="js-magnet magnet-link">[复制磁连]</a>
+                    </td>
+                    <td>17.7GB</td>
+                    <td>2026/08/15 23:20</td>
+                    <td>
+                        <a
+                            href="/Download/20260815/4ca78745e6d0c84dc8b46cd69dd605bbdbe72881.torrent">
+                            <img src="/images/download_icon_blue.svg" style="margin-left: 2px;width: 20px;height:15px;">
+                        </a>
+                    </td>
+                    <td>
+                        <a target="_blank"
+                            href="https://keepshare.org/rclukaia/magnet%3A%3Fxt%3Durn%3Abtih%3A4ca78745e6d0c84dc8b46cd69dd605bbdbe72881">
+                            <i class="fa fa-play-circle" style="color: #47c1c5; margin-left: 4px; font-size: 18px;"></i>
+                        </a>
+                    </td>
+                </tr>
+                <tr class="js-search-results-row" data-itemindex="4"
+                    style="">
+                    <td>
+                        <input type="checkbox" class="js-episode-select" data-magnet="magnet:?xt=urn:btih:9a7b7d3a08d4889b44f0ed6d701468802b766f28&amp;tr=http%3a%2f%2ft.nyaatracker.com%2fannounce&amp;tr=http%3a%2f%2ftracker.kamigami.org%3a2710%2fannounce&amp;tr=http%3a%2f%2fshare.camoe.cn%3a8080%2fannounce&amp;tr=http%3a%2f%2fopentracker.acgnx.se%2fannounce&amp;tr=http%3a%2f%2fanidex.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2ft.acg.rip%3a6699%2fannounce&amp;tr=https%3a%2f%2ftr.bangumi.moe%3a9696%2fannounce&amp;tr=udp%3a%2f%2ftr.bangumi.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2fopen.acgtracker.com%3a1096%2fannounce&amp;tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337%2fannounce"
+                            aria-label="选择此行" />
+                    </td>
+                    <td>
+                        <a href="/Home/Episode/9a7b7d3a08d4889b44f0ed6d701468802b766f28" target="_blank"
+                            class="magnet-link-wrap">[7&#xB3;ACG] &#x846C;&#x9001;&#x7684;&#x8299;&#x8389;&#x83B2;/Sousou no Frieren S01 | 01-28&#x2B;SPx11 [&#x7B80;&#x7E41;&#x5B57;&#x5E55;] BDrip 1080p AV1 OPUS 2.0</a>
+                        <a data-clipboard-text="magnet:?xt=urn:btih:9a7b7d3a08d4889b44f0ed6d701468802b766f28&amp;tr=http%3a%2f%2ft.nyaatracker.com%2fannounce&amp;tr=http%3a%2f%2ftracker.kamigami.org%3a2710%2fannounce&amp;tr=http%3a%2f%2fshare.camoe.cn%3a8080%2fannounce&amp;tr=http%3a%2f%2fopentracker.acgnx.se%2fannounce&amp;tr=http%3a%2f%2fanidex.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2ft.acg.rip%3a6699%2fannounce&amp;tr=https%3a%2f%2ftr.bangumi.moe%3a9696%2fannounce&amp;tr=udp%3a%2f%2ftr.bangumi.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2fopen.acgtracker.com%3a1096%2fannounce&amp;tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337%2fannounce" class="js-magnet magnet-link">[复制磁连]</a>
+                    </td>
+                    <td>25.8GB</td>
+                    <td>2026/08/13 14:46</td>
+                    <td>
+                        <a
+                            href="/Download/20260813/9a7b7d3a08d4889b44f0ed6d701468802b766f28.torrent">
+                            <img src="/images/download_icon_blue.svg" style="margin-left: 2px;width: 20px;height:15px;">
+                        </a>
+                    </td>
+                    <td>
+                        <a target="_blank"
+                            href="https://keepshare.org/rclukaia/magnet%3A%3Fxt%3Durn%3Abtih%3A9a7b7d3a08d4889b44f0ed6d701468802b766f28">
+                            <i class="fa fa-play-circle" style="color: #47c1c5; margin-left: 4px; font-size: 18px;"></i>
+                        </a>
+                    </td>
+                </tr>
+                <tr class="js-search-results-row" data-itemindex="5"
+                    style="">
+                    <td>
+                        <input type="checkbox" class="js-episode-select" data-magnet="magnet:?xt=urn:btih:f7f11b17b95b00313ededdeb0d2c2057c13309e9&amp;tr=http%3a%2f%2ft.nyaatracker.com%2fannounce&amp;tr=http%3a%2f%2ftracker.kamigami.org%3a2710%2fannounce&amp;tr=http%3a%2f%2fshare.camoe.cn%3a8080%2fannounce&amp;tr=http%3a%2f%2fopentracker.acgnx.se%2fannounce&amp;tr=http%3a%2f%2fanidex.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2ft.acg.rip%3a6699%2fannounce&amp;tr=https%3a%2f%2ftr.bangumi.moe%3a9696%2fannounce&amp;tr=udp%3a%2f%2ftr.bangumi.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2fopen.acgtracker.com%3a1096%2fannounce&amp;tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337%2fannounce"
+                            aria-label="选择此行" />
+                    </td>
+                    <td>
+                        <a href="/Home/Episode/f7f11b17b95b00313ededdeb0d2c2057c13309e9" target="_blank"
+                            class="magnet-link-wrap">[H-Enc] &#x846C;&#x9001;&#x7684;&#x8299;&#x8389;&#x83B2; &#x7B2C;&#x4E8C;&#x5B63; / Sousou no Frieren 2nd Season (BDRip 1080p HEVC FLAC)</a>
+                        <a data-clipboard-text="magnet:?xt=urn:btih:f7f11b17b95b00313ededdeb0d2c2057c13309e9&amp;tr=http%3a%2f%2ft.nyaatracker.com%2fannounce&amp;tr=http%3a%2f%2ftracker.kamigami.org%3a2710%2fannounce&amp;tr=http%3a%2f%2fshare.camoe.cn%3a8080%2fannounce&amp;tr=http%3a%2f%2fopentracker.acgnx.se%2fannounce&amp;tr=http%3a%2f%2fanidex.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2ft.acg.rip%3a6699%2fannounce&amp;tr=https%3a%2f%2ftr.bangumi.moe%3a9696%2fannounce&amp;tr=udp%3a%2f%2ftr.bangumi.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2fopen.acgtracker.com%3a1096%2fannounce&amp;tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337%2fannounce" class="js-magnet magnet-link">[复制磁连]</a>
+                    </td>
+                    <td>26.3 GB</td>
+                    <td>2026/08/12 06:12</td>
+                    <td>
+                        <a
+                            href="/Download/20260812/f7f11b17b95b00313ededdeb0d2c2057c13309e9.torrent">
+                            <img src="/images/download_icon_blue.svg" style="margin-left: 2px;width: 20px;height:15px;">
+                        </a>
+                    </td>
+                    <td>
+                        <a target="_blank"
+                            href="https://keepshare.org/rclukaia/magnet%3A%3Fxt%3Durn%3Abtih%3Af7f11b17b95b00313ededdeb0d2c2057c13309e9">
+                            <i class="fa fa-play-circle" style="color: #47c1c5; margin-left: 4px; font-size: 18px;"></i>
+                        </a>
+                    </td>
+                </tr>
+                <tr class="js-search-results-row" data-itemindex="6"
+                    style="">
+                    <td>
+                        <input type="checkbox" class="js-episode-select" data-magnet="magnet:?xt=urn:btih:8b3ddc6f4b14ea573c6e77059a657719b8887a27&amp;tr=http%3a%2f%2ft.nyaatracker.com%2fannounce&amp;tr=http%3a%2f%2ftracker.kamigami.org%3a2710%2fannounce&amp;tr=http%3a%2f%2fshare.camoe.cn%3a8080%2fannounce&amp;tr=http%3a%2f%2fopentracker.acgnx.se%2fannounce&amp;tr=http%3a%2f%2fanidex.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2ft.acg.rip%3a6699%2fannounce&amp;tr=https%3a%2f%2ftr.bangumi.moe%3a9696%2fannounce&amp;tr=udp%3a%2f%2ftr.bangumi.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2fopen.acgtracker.com%3a1096%2fannounce&amp;tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337%2fannounce"
+                            aria-label="选择此行" />
+                    </td>
+                    <td>
+                        <a href="/Home/Episode/8b3ddc6f4b14ea573c6e77059a657719b8887a27" target="_blank"
+                            class="magnet-link-wrap">[7&#xB3;ACG] &#x846C;&#x9001;&#x7684;&#x8299;&#x8389;&#x83B2;/Sousou no Frieren S01 | 29-38&#x2B;SPx11 [&#x7B80;&#x7E41;&#x5B57;&#x5E55;] BDrip 1080p x265 OPUS 2.0</a>
+                        <a data-clipboard-text="magnet:?xt=urn:btih:8b3ddc6f4b14ea573c6e77059a657719b8887a27&amp;tr=http%3a%2f%2ft.nyaatracker.com%2fannounce&amp;tr=http%3a%2f%2ftracker.kamigami.org%3a2710%2fannounce&amp;tr=http%3a%2f%2fshare.camoe.cn%3a8080%2fannounce&amp;tr=http%3a%2f%2fopentracker.acgnx.se%2fannounce&amp;tr=http%3a%2f%2fanidex.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2ft.acg.rip%3a6699%2fannounce&amp;tr=https%3a%2f%2ftr.bangumi.moe%3a9696%2fannounce&amp;tr=udp%3a%2f%2ftr.bangumi.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2fopen.acgtracker.com%3a1096%2fannounce&amp;tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337%2fannounce" class="js-magnet magnet-link">[复制磁连]</a>
+                    </td>
+                    <td>13.5 GB</td>
+                    <td>2026/08/07 19:38</td>
+                    <td>
+                        <a
+                            href="/Download/20260807/8b3ddc6f4b14ea573c6e77059a657719b8887a27.torrent">
+                            <img src="/images/download_icon_blue.svg" style="margin-left: 2px;width: 20px;height:15px;">
+                        </a>
+                    </td>
+                    <td>
+                        <a target="_blank"
+                            href="https://keepshare.org/rclukaia/magnet%3A%3Fxt%3Durn%3Abtih%3A8b3ddc6f4b14ea573c6e77059a657719b8887a27">
+                            <i class="fa fa-play-circle" style="color: #47c1c5; margin-left: 4px; font-size: 18px;"></i>
+                        </a>
+                    </td>
+                </tr>
+                <tr class="js-search-results-row" data-itemindex="7"
+                    style="">
+                    <td>
+                        <input type="checkbox" class="js-episode-select" data-magnet="magnet:?xt=urn:btih:b1114eaf505052fdd98329bc9a6e85ec81294d7a&amp;tr=http%3a%2f%2ft.nyaatracker.com%2fannounce&amp;tr=http%3a%2f%2ftracker.kamigami.org%3a2710%2fannounce&amp;tr=http%3a%2f%2fshare.camoe.cn%3a8080%2fannounce&amp;tr=http%3a%2f%2fopentracker.acgnx.se%2fannounce&amp;tr=http%3a%2f%2fanidex.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2ft.acg.rip%3a6699%2fannounce&amp;tr=https%3a%2f%2ftr.bangumi.moe%3a9696%2fannounce&amp;tr=udp%3a%2f%2ftr.bangumi.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2fopen.acgtracker.com%3a1096%2fannounce&amp;tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337%2fannounce"
+                            aria-label="选择此行" />
+                    </td>
+                    <td>
+                        <a href="/Home/Episode/b1114eaf505052fdd98329bc9a6e85ec81294d7a" target="_blank"
+                            class="magnet-link-wrap">[7&#xB3;ACG] &#x846C;&#x9001;&#x7684;&#x8299;&#x8389;&#x83B2;/Sousou no Frieren S01 | 29-38&#x2B;SPx11 [&#x7B80;&#x7E41;&#x5B57;&#x5E55;] BDrip 1080p AV1 OPUS 2.0</a>
+                        <a data-clipboard-text="magnet:?xt=urn:btih:b1114eaf505052fdd98329bc9a6e85ec81294d7a&amp;tr=http%3a%2f%2ft.nyaatracker.com%2fannounce&amp;tr=http%3a%2f%2ftracker.kamigami.org%3a2710%2fannounce&amp;tr=http%3a%2f%2fshare.camoe.cn%3a8080%2fannounce&amp;tr=http%3a%2f%2fopentracker.acgnx.se%2fannounce&amp;tr=http%3a%2f%2fanidex.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2ft.acg.rip%3a6699%2fannounce&amp;tr=https%3a%2f%2ftr.bangumi.moe%3a9696%2fannounce&amp;tr=udp%3a%2f%2ftr.bangumi.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2fopen.acgtracker.com%3a1096%2fannounce&amp;tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337%2fannounce" class="js-magnet magnet-link">[复制磁连]</a>
+                    </td>
+                    <td>8.6 GB</td>
+                    <td>2026/08/07 19:38</td>
+                    <td>
+                        <a
+                            href="/Download/20260807/b1114eaf505052fdd98329bc9a6e85ec81294d7a.torrent">
+                            <img src="/images/download_icon_blue.svg" style="margin-left: 2px;width: 20px;height:15px;">
+                        </a>
+                    </td>
+                    <td>
+                        <a target="_blank"
+                            href="https://keepshare.org/rclukaia/magnet%3A%3Fxt%3Durn%3Abtih%3Ab1114eaf505052fdd98329bc9a6e85ec81294d7a">
+                            <i class="fa fa-play-circle" style="color: #47c1c5; margin-left: 4px; font-size: 18px;"></i>
+                        </a>
+                    </td>
+                </tr>
+                <tr class="js-search-results-row" data-itemindex="8"
+                    style="">
+                    <td>
+                        <input type="checkbox" class="js-episode-select" data-magnet="magnet:?xt=urn:btih:cb2e5cce0b4fe28f91f8c756d34483d2b3def4d6&amp;tr=http%3a%2f%2ft.nyaatracker.com%2fannounce&amp;tr=http%3a%2f%2ftracker.kamigami.org%3a2710%2fannounce&amp;tr=http%3a%2f%2fshare.camoe.cn%3a8080%2fannounce&amp;tr=http%3a%2f%2fopentracker.acgnx.se%2fannounce&amp;tr=http%3a%2f%2fanidex.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2ft.acg.rip%3a6699%2fannounce&amp;tr=https%3a%2f%2ftr.bangumi.moe%3a9696%2fannounce&amp;tr=udp%3a%2f%2ftr.bangumi.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2fopen.acgtracker.com%3a1096%2fannounce&amp;tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337%2fannounce"
+                            aria-label="选择此行" />
+                    </td>
+                    <td>
+                        <a href="/Home/Episode/cb2e5cce0b4fe28f91f8c756d34483d2b3def4d6" target="_blank"
+                            class="magnet-link-wrap">[ReinForce] &#x846C;&#x9001;&#x7684;&#x8299;&#x8389;&#x83B2; S1-S2 / &#x846C;&#x9001;&#x306E;&#x30D5;&#x30EA;&#x30FC;&#x30EC;&#x30F3; /Sousou no Frieren (BDRip 1920x1080 x264 FLAC)</a>
+                        <a data-clipboard-text="magnet:?xt=urn:btih:cb2e5cce0b4fe28f91f8c756d34483d2b3def4d6&amp;tr=http%3a%2f%2ft.nyaatracker.com%2fannounce&amp;tr=http%3a%2f%2ftracker.kamigami.org%3a2710%2fannounce&amp;tr=http%3a%2f%2fshare.camoe.cn%3a8080%2fannounce&amp;tr=http%3a%2f%2fopentracker.acgnx.se%2fannounce&amp;tr=http%3a%2f%2fanidex.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2ft.acg.rip%3a6699%2fannounce&amp;tr=https%3a%2f%2ftr.bangumi.moe%3a9696%2fannounce&amp;tr=udp%3a%2f%2ftr.bangumi.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2fopen.acgtracker.com%3a1096%2fannounce&amp;tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337%2fannounce" class="js-magnet magnet-link">[复制磁连]</a>
+                    </td>
+                    <td>105.7GB</td>
+                    <td>2026/08/06 12:37</td>
+                    <td>
+                        <a
+                            href="/Download/20260806/cb2e5cce0b4fe28f91f8c756d34483d2b3def4d6.torrent">
+                            <img src="/images/download_icon_blue.svg" style="margin-left: 2px;width: 20px;height:15px;">
+                        </a>
+                    </td>
+                    <td>
+                        <a target="_blank"
+                            href="https://keepshare.org/rclukaia/magnet%3A%3Fxt%3Durn%3Abtih%3Acb2e5cce0b4fe28f91f8c756d34483d2b3def4d6">
+                            <i class="fa fa-play-circle" style="color: #47c1c5; margin-left: 4px; font-size: 18px;"></i>
+                        </a>
+                    </td>
+                </tr>
+                <tr class="js-search-results-row" data-itemindex="9"
+                    style="">
+                    <td>
+                        <input type="checkbox" class="js-episode-select" data-magnet="magnet:?xt=urn:btih:1f01b9c6de60857a5ba31a484e583c71956cdf8b&amp;tr=http%3a%2f%2ft.nyaatracker.com%2fannounce&amp;tr=http%3a%2f%2ftracker.kamigami.org%3a2710%2fannounce&amp;tr=http%3a%2f%2fshare.camoe.cn%3a8080%2fannounce&amp;tr=http%3a%2f%2fopentracker.acgnx.se%2fannounce&amp;tr=http%3a%2f%2fanidex.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2ft.acg.rip%3a6699%2fannounce&amp;tr=https%3a%2f%2ftr.bangumi.moe%3a9696%2fannounce&amp;tr=udp%3a%2f%2ftr.bangumi.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2fopen.acgtracker.com%3a1096%2fannounce&amp;tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337%2fannounce"
+                            aria-label="选择此行" />
+                    </td>
+                    <td>
+                        <a href="/Home/Episode/1f01b9c6de60857a5ba31a484e583c71956cdf8b" target="_blank"
+                            class="magnet-link-wrap">[Zzz&#x7761;&#x4E0D;&#x9192;][&#x846C;&#x9001;&#x7684;&#x8299;&#x8389;&#x83B2; &#x7B2C;&#x4E8C;&#x5B63;][Sousou no Frieren 2nd Season][01-10][BDRip][1080P][HEVC-10bit][&#x7B80;&#x7E41;&#x65E5;&#x5185;&#x5C01;][MKV]</a>
+                        <a data-clipboard-text="magnet:?xt=urn:btih:1f01b9c6de60857a5ba31a484e583c71956cdf8b&amp;tr=http%3a%2f%2ft.nyaatracker.com%2fannounce&amp;tr=http%3a%2f%2ftracker.kamigami.org%3a2710%2fannounce&amp;tr=http%3a%2f%2fshare.camoe.cn%3a8080%2fannounce&amp;tr=http%3a%2f%2fopentracker.acgnx.se%2fannounce&amp;tr=http%3a%2f%2fanidex.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2ft.acg.rip%3a6699%2fannounce&amp;tr=https%3a%2f%2ftr.bangumi.moe%3a9696%2fannounce&amp;tr=udp%3a%2f%2ftr.bangumi.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2fopen.acgtracker.com%3a1096%2fannounce&amp;tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337%2fannounce" class="js-magnet magnet-link">[复制磁连]</a>
+                    </td>
+                    <td>11.7GB</td>
+                    <td>2026/08/05 16:02</td>
+                    <td>
+                        <a
+                            href="/Download/20260805/1f01b9c6de60857a5ba31a484e583c71956cdf8b.torrent">
+                            <img src="/images/download_icon_blue.svg" style="margin-left: 2px;width: 20px;height:15px;">
+                        </a>
+                    </td>
+                    <td>
+                        <a target="_blank"
+                            href="https://keepshare.org/rclukaia/magnet%3A%3Fxt%3Durn%3Abtih%3A1f01b9c6de60857a5ba31a484e583c71956cdf8b">
+                            <i class="fa fa-play-circle" style="color: #47c1c5; margin-left: 4px; font-size: 18px;"></i>
+                        </a>
+                    </td>
+                </tr>
+                <tr class="js-search-results-row" data-itemindex="10"
+                    style="">
+                    <td>
+                        <input type="checkbox" class="js-episode-select" data-magnet="magnet:?xt=urn:btih:6749019e7e0560e89b9d69f2838638467f28f6df&amp;tr=http%3a%2f%2ft.nyaatracker.com%2fannounce&amp;tr=http%3a%2f%2ftracker.kamigami.org%3a2710%2fannounce&amp;tr=http%3a%2f%2fshare.camoe.cn%3a8080%2fannounce&amp;tr=http%3a%2f%2fopentracker.acgnx.se%2fannounce&amp;tr=http%3a%2f%2fanidex.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2ft.acg.rip%3a6699%2fannounce&amp;tr=https%3a%2f%2ftr.bangumi.moe%3a9696%2fannounce&amp;tr=udp%3a%2f%2ftr.bangumi.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2fopen.acgtracker.com%3a1096%2fannounce&amp;tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337%2fannounce"
+                            aria-label="选择此行" />
+                    </td>
+                    <td>
+                        <a href="/Home/Episode/6749019e7e0560e89b9d69f2838638467f28f6df" target="_blank"
+                            class="magnet-link-wrap">[jibaketa&#x5408;&#x6210;][&#x4EE3;&#x7406;&#x5546;&#x7CA4;&#x8BED;]&#x846C;&#x9001;&#x7684;&#x8299;&#x8389;&#x83B2; &#x7B2C;&#x4E8C;&#x5B63; / Sousou no Frieren 2nd Season - 10 END [&#x7CA4;&#x65E5;&#x53CC;&#x8BED;&#x2B;&#x5185;&#x5C01;&#x7E41;&#x4F53;&#x4E2D;&#x6587;&#x5B57;&#x5E55;] (WEB 1920x1080 AVC AACx2 SRT MUSE CHT)</a>
+                        <a data-clipboard-text="magnet:?xt=urn:btih:6749019e7e0560e89b9d69f2838638467f28f6df&amp;tr=http%3a%2f%2ft.nyaatracker.com%2fannounce&amp;tr=http%3a%2f%2ftracker.kamigami.org%3a2710%2fannounce&amp;tr=http%3a%2f%2fshare.camoe.cn%3a8080%2fannounce&amp;tr=http%3a%2f%2fopentracker.acgnx.se%2fannounce&amp;tr=http%3a%2f%2fanidex.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2ft.acg.rip%3a6699%2fannounce&amp;tr=https%3a%2f%2ftr.bangumi.moe%3a9696%2fannounce&amp;tr=udp%3a%2f%2ftr.bangumi.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2fopen.acgtracker.com%3a1096%2fannounce&amp;tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337%2fannounce" class="js-magnet magnet-link">[复制磁连]</a>
+                    </td>
+                    <td>875.4 MB</td>
+                    <td>2026/06/05 23:15</td>
+                    <td>
+                        <a
+                            href="/Download/20260605/6749019e7e0560e89b9d69f2838638467f28f6df.torrent">
+                            <img src="/images/download_icon_blue.svg" style="margin-left: 2px;width: 20px;height:15px;">
+                        </a>
+                    </td>
+                    <td>
+                        <a target="_blank"
+                            href="https://keepshare.org/rclukaia/magnet%3A%3Fxt%3Durn%3Abtih%3A6749019e7e0560e89b9d69f2838638467f28f6df">
+                            <i class="fa fa-play-circle" style="color: #47c1c5; margin-left: 4px; font-size: 18px;"></i>
+                        </a>
+                    </td>
+                </tr>
+                <tr class="js-search-results-row" data-itemindex="11"
+                    style="">
+                    <td>
+                        <input type="checkbox" class="js-episode-select" data-magnet="magnet:?xt=urn:btih:2208ea63f50074414c49703c8423121ffbf1a0e3&amp;tr=http%3a%2f%2ft.nyaatracker.com%2fannounce&amp;tr=http%3a%2f%2ftracker.kamigami.org%3a2710%2fannounce&amp;tr=http%3a%2f%2fshare.camoe.cn%3a8080%2fannounce&amp;tr=http%3a%2f%2fopentracker.acgnx.se%2fannounce&amp;tr=http%3a%2f%2fanidex.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2ft.acg.rip%3a6699%2fannounce&amp;tr=https%3a%2f%2ftr.bangumi.moe%3a9696%2fannounce&amp;tr=udp%3a%2f%2ftr.bangumi.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2fopen.acgtracker.com%3a1096%2fannounce&amp;tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337%2fannounce"
+                            aria-label="选择此行" />
+                    </td>
+                    <td>
+                        <a href="/Home/Episode/2208ea63f50074414c49703c8423121ffbf1a0e3" target="_blank"
+                            class="magnet-link-wrap">[jibaketa&#x5408;&#x6210;][&#x4EE3;&#x7406;&#x5546;&#x7CA4;&#x8BED;]&#x846C;&#x9001;&#x7684;&#x8299;&#x8389;&#x83B2; &#x7B2C;&#x4E8C;&#x5B63; / Sousou no Frieren 2nd Season - 09 [&#x7CA4;&#x65E5;&#x53CC;&#x8BED;&#x2B;&#x5185;&#x5C01;&#x7E41;&#x4F53;&#x4E2D;&#x6587;&#x5B57;&#x5E55;] (WEB 1920x1080 AVC AACx2 SRT MUSE CHT)</a>
+                        <a data-clipboard-text="magnet:?xt=urn:btih:2208ea63f50074414c49703c8423121ffbf1a0e3&amp;tr=http%3a%2f%2ft.nyaatracker.com%2fannounce&amp;tr=http%3a%2f%2ftracker.kamigami.org%3a2710%2fannounce&amp;tr=http%3a%2f%2fshare.camoe.cn%3a8080%2fannounce&amp;tr=http%3a%2f%2fopentracker.acgnx.se%2fannounce&amp;tr=http%3a%2f%2fanidex.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2ft.acg.rip%3a6699%2fannounce&amp;tr=https%3a%2f%2ftr.bangumi.moe%3a9696%2fannounce&amp;tr=udp%3a%2f%2ftr.bangumi.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2fopen.acgtracker.com%3a1096%2fannounce&amp;tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337%2fannounce" class="js-magnet magnet-link">[复制磁连]</a>
+                    </td>
+                    <td>852.61 MB</td>
+                    <td>2026/05/29 14:38</td>
+                    <td>
+                        <a
+                            href="/Download/20260529/2208ea63f50074414c49703c8423121ffbf1a0e3.torrent">
+                            <img src="/images/download_icon_blue.svg" style="margin-left: 2px;width: 20px;height:15px;">
+                        </a>
+                    </td>
+                    <td>
+                        <a target="_blank"
+                            href="https://keepshare.org/rclukaia/magnet%3A%3Fxt%3Durn%3Abtih%3A2208ea63f50074414c49703c8423121ffbf1a0e3">
+                            <i class="fa fa-play-circle" style="color: #47c1c5; margin-left: 4px; font-size: 18px;"></i>
+                        </a>
+                    </td>
+                </tr>
+                <tr class="js-search-results-row" data-itemindex="12"
+                    style="">
+                    <td>
+                        <input type="checkbox" class="js-episode-select" data-magnet="magnet:?xt=urn:btih:083ab725a1baaf0a6e27af1c4cb2a632d91e246c&amp;tr=http%3a%2f%2ft.nyaatracker.com%2fannounce&amp;tr=http%3a%2f%2ftracker.kamigami.org%3a2710%2fannounce&amp;tr=http%3a%2f%2fshare.camoe.cn%3a8080%2fannounce&amp;tr=http%3a%2f%2fopentracker.acgnx.se%2fannounce&amp;tr=http%3a%2f%2fanidex.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2ft.acg.rip%3a6699%2fannounce&amp;tr=https%3a%2f%2ftr.bangumi.moe%3a9696%2fannounce&amp;tr=udp%3a%2f%2ftr.bangumi.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2fopen.acgtracker.com%3a1096%2fannounce&amp;tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337%2fannounce"
+                            aria-label="选择此行" />
+                    </td>
+                    <td>
+                        <a href="/Home/Episode/083ab725a1baaf0a6e27af1c4cb2a632d91e246c" target="_blank"
+                            class="magnet-link-wrap">[jibaketa&#x5408;&#x6210;][&#x4EE3;&#x7406;&#x5546;&#x7CA4;&#x8BED;]&#x846C;&#x9001;&#x7684;&#x8299;&#x8389;&#x83B2; &#x7B2C;&#x4E8C;&#x5B63; / Sousou no Frieren 2nd Season - 08 [&#x7CA4;&#x65E5;&#x53CC;&#x8BED;&#x2B;&#x5185;&#x5C01;&#x7E41;&#x4F53;&#x4E2D;&#x6587;&#x5B57;&#x5E55;] (WEB 1920x1080 AVC AACx2 SRT MUSE CHT)</a>
+                        <a data-clipboard-text="magnet:?xt=urn:btih:083ab725a1baaf0a6e27af1c4cb2a632d91e246c&amp;tr=http%3a%2f%2ft.nyaatracker.com%2fannounce&amp;tr=http%3a%2f%2ftracker.kamigami.org%3a2710%2fannounce&amp;tr=http%3a%2f%2fshare.camoe.cn%3a8080%2fannounce&amp;tr=http%3a%2f%2fopentracker.acgnx.se%2fannounce&amp;tr=http%3a%2f%2fanidex.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2ft.acg.rip%3a6699%2fannounce&amp;tr=https%3a%2f%2ftr.bangumi.moe%3a9696%2fannounce&amp;tr=udp%3a%2f%2ftr.bangumi.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2fopen.acgtracker.com%3a1096%2fannounce&amp;tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337%2fannounce" class="js-magnet magnet-link">[复制磁连]</a>
+                    </td>
+                    <td>977.56 MB</td>
+                    <td>2026/05/22 23:30</td>
+                    <td>
+                        <a
+                            href="/Download/20260522/083ab725a1baaf0a6e27af1c4cb2a632d91e246c.torrent">
+                            <img src="/images/download_icon_blue.svg" style="margin-left: 2px;width: 20px;height:15px;">
+                        </a>
+                    </td>
+                    <td>
+                        <a target="_blank"
+                            href="https://keepshare.org/rclukaia/magnet%3A%3Fxt%3Durn%3Abtih%3A083ab725a1baaf0a6e27af1c4cb2a632d91e246c">
+                            <i class="fa fa-play-circle" style="color: #47c1c5; margin-left: 4px; font-size: 18px;"></i>
+                        </a>
+                    </td>
+                </tr>
+                <tr class="js-search-results-row" data-itemindex="13"
+                    style="">
+                    <td>
+                        <input type="checkbox" class="js-episode-select" data-magnet="magnet:?xt=urn:btih:b903be6eabc4bb55a521d5d8b5df2aeca4ff6164&amp;tr=http%3a%2f%2ft.nyaatracker.com%2fannounce&amp;tr=http%3a%2f%2ftracker.kamigami.org%3a2710%2fannounce&amp;tr=http%3a%2f%2fshare.camoe.cn%3a8080%2fannounce&amp;tr=http%3a%2f%2fopentracker.acgnx.se%2fannounce&amp;tr=http%3a%2f%2fanidex.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2ft.acg.rip%3a6699%2fannounce&amp;tr=https%3a%2f%2ftr.bangumi.moe%3a9696%2fannounce&amp;tr=udp%3a%2f%2ftr.bangumi.moe%3a6969%2fannounce&amp;tr=http%3a%2f%2fopen.acgtracker.com%3a1096%2fannounce&amp;tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337%2fannounce"
+                            aria-label="选择此行" />
+                    </td>
+                    <td>
+                        <a href="/Home/Episode/b903be6eabc4bb55a521d5d8b5df2aeca4ff6164" target="_blank"
+               

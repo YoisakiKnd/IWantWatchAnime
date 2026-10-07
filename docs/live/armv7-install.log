@@ -1,0 +1,12 @@
+### 安装器输出（SUZU_NO_SYSTEMD=1 前缀模式，避免动这台机器的 systemd）
+$ SUZU_NO_SYSTEMD=1 SUZU_PREFIX=/tmp/dp2 SUZU_DATA=/tmp/dp2/data deploy/install.sh
+!! 当前架构是 x86_64，这份二进制是给 armv7 的。确认无误就继续（脚本不拦）。
+==> 准备目录：/tmp/dp2/data/suzu / /tmp/dp2/data/downloads / /tmp/dp2/data/library
+==> 安装二进制 → /tmp/dp2/data/suzu/suzu
+==> 生成配置：/tmp/dp2/data/suzu/config.toml
+
+    面板账号：admin
+    面板密码：<生成的密码>   ← 记下来，config.toml 里也是这个
+
+==> 跳过 systemd（SUZU_NO_SYSTEMD/PREFIX）；单元文件渲染到 /tmp/dp2/suzu.service
+==> 手工起一次：/tmp/dp2/data/suzu/suzu -config /tmp/dp2/data/suzu/config.toml

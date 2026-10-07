@@ -1,0 +1,80 @@
+# suzu 玩客云（armv7）部署模板 —— 由 deploy/install.sh 渲染，别手工改这里的 @占位符@。
+#
+# 三条对应你踩过的坑：
+#   1. eMMC 不能覆写 → 配置、数据库、下载、媒体库全部落在外接盘（@DATA_DIR@），
+#      二进制本身也只读，程序不写根文件系统。
+#   2. 移动硬盘不能引导 → suzu 不碰引导；系统怎么起来的不管，能把盘挂上就行。
+#   3. 没有 armv7 的看番方案 → 这份静态二进制就是。
+
+[server]
+# 默认只听本机。想在手机上看面板：改成 @LISTEN_LAN@，
+# 并把下面 user/password 设好（没密码 + 对局域网开放 = 程序拒绝启动）。
+listen = "@LISTEN@"
+user = "@USER@"
+password = "@PASSWORD@"
+# 脚本调用用的长期令牌（可选）。用法：curl -H "X-Api-Token: ..." ...
+token = ""
+accept_token = true
+
+[storage]
+# 数据库与快照都放外接盘：eMMC 上不落一个字节。
+data_dir = "@DATA_DIR@/suzu/data"
+snapshot_min = 360
+
+[engine]
+kind = "aria2"
+
+[engine.aria2]
+# aria2 单独一个 unit 跑在同一个盒子上的 localhost。
+endpoint = "http://127.0.0.1:6800/jsonrpc"
+dir = "@DATA_DIR@/downloads"
+max_peers = 30
+seed_time_min = 0
+
+[library]
+root = "@DATA_DIR@/library"
+# {group} 是季度目录（2024秋），{span} 让合集渲染成 01-12、单集渲染成 03。
+name_rule = "{group}/{title}/第 {season:02d} 季/{title} - S{season:02d}E{span}"
+# hardlink = 做种与入库共用同一份数据，不占第二份空间。
+# 注意：下载目录与媒体库必须在同一个文件系统上，否则自动退回复制（会翻倍占空间）。
+link_mode = "hardlink"
+write_nfo = true
+min_free_gib = 5
+
+[metadata]
+# 蜜柑刮削：搜索、详情、字幕组、封面、一键订阅。
+enabled = true
+provider = "mikan"
+mikan_base = "https://mikanani.me"
+min_gap_ms = 1200
+cache_hours = 12
+prefer = ["喵萌奶茶屋", "LoliHouse", "7³ACG"]
+fetch_poster = true
+timeout_s = 12
+bgm_base = ""
+bgm_token = ""
+
+[relink]
+# 断种自动换链：同集另一条源重投，每集最多 2 次。
+enabled = true
+stuck_hours = 6
+max_per_episode = 2
+
+[notify]
+# 留空 = 不通知。webhook 例子：["https://your-webhook.example/suzu"]
+webhooks = []
+# Telegram 想看通知就填这两个。
+bot_token = ""
+chat_id = ""
+throttle_min = 5
+
+[runtime]
+# 出问题时改成 debug，日志进 journalctl -u suzu -f。
+log_level = "info"
+# A5 四核但单核弱：2 个并发拉取已经够，再高只是互相抢时间片。
+poll_workers = 2
+reconcile_sec = 15
+mem_limit_mib = 48
+
+# 不写 [[feeds]]：订阅从面板上加（搜索番剧 → 挑字幕组 → 一键订阅），
+# 配置里的 feeds 只在"库里一条订阅都没有"时用来做种子订阅。

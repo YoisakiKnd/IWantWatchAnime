@@ -1,0 +1,37 @@
+{{define "frag-schedule"}}
+{{if .Rows}}
+<ol class="rundown">
+  {{range $i, $r := .Rows}}
+    {{if eq $.Cursor $i}}
+    <li class="cursor">
+      <span class="cursor-tag">现在</span>
+      <span class="cursor-line"></span>
+    </li>
+    {{end}}
+    <li class="row {{$r.StateClass}}">
+      <span class="clock">{{$r.Clock}}</span>
+      <span class="row-thumb">
+        {{if $r.Sub.HasCover}}<img src="/api/v1/covers/{{$r.Sub.MikanID}}.jpg" alt="" loading="lazy" data-fallback="{{initial $r.Sub.Name}}">{{else}}<span class="poster-blank"></span>{{end}}
+      </span>
+      <span class="name">{{$r.Sub.Name}}</span>
+      <span class="subline">
+        {{if $r.Sub.Day}}<span class="air-glyph small" title="放送日 {{$r.Sub.AirText}}">{{$r.Sub.Day}}</span>{{end}}
+        <span class="tag">{{if $r.Sub.Group}}{{$r.Sub.Group}}{{else}}未分组{{end}}</span>
+        <span class="every">每 {{$r.Sub.IntervalMin}} 分钟</span>
+        {{if $r.Sub.Episodes}}<span class="every" title="蜜柑上的总集数">共 {{$r.Sub.Episodes}} 集</span>{{end}}
+        {{if $r.Sub.Include}}<span class="cond">含 {{range $j, $k := $r.Sub.Include}}{{if $j}} {{end}}{{$k}}{{end}}</span>{{end}}
+        {{if $r.Sub.LastError}}<span class="cond err" title="{{$r.Sub.LastError}}">上次失败</span>{{end}}
+      </span>
+      <span class="eta">{{$r.Next}}</span>
+      <span class="acts">
+        <form method="post" action="/api/v1/subscriptions/{{$r.Sub.ID}}/poll"><button type="submit">刷新</button></form>
+        <form method="post" action="/api/v1/subscriptions/{{$r.Sub.ID}}/toggle"><button type="submit">{{if $r.Sub.Enabled}}停用{{else}}启用{{end}}</button></form>
+        <form method="post" action="/api/v1/subscriptions/{{$r.Sub.ID}}/delete"><button type="submit" class="danger">删除</button></form>
+      </span>
+    </li>
+  {{end}}
+</ol>
+{{else}}
+<p class="empty">还没有订阅。展开下面的表单加一个番剧的 RSS，它会在几秒后开始首次抓取。</p>
+{{end}}
+{{end}}

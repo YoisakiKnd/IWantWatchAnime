@@ -1,0 +1,30 @@
+{{define "frag-queue"}}
+{{if .OV.Tasks}}
+<ul class="tasks">
+  {{range .OV.Tasks}}
+  <li class="task {{.State}}">
+    <div class="task-head">
+      <span class="task-title" title="{{.Title}}">{{shortTitle .Title 38}}</span>
+      <span class="state">{{taskLabel .State}}</span>
+    </div>
+    <div class="bar"><i style="{{barStyle .Progress}}"></i></div>
+    <div class="task-foot">
+      <span>{{bytes .DoneBytes}} / {{bytes .TotalBytes}}</span>
+      <span>{{pct .Progress}}%</span>
+      {{if .Error}}<span class="err" title="{{.Error}}">{{shortTitle .Error 28}}</span>{{end}}
+    </div>
+    <div class="acts">
+      {{if eq .State "paused"}}
+      <form method="post" action="/api/v1/tasks/{{.ID}}/resume"><button type="submit">继续</button></form>
+      {{else}}
+      <form method="post" action="/api/v1/tasks/{{.ID}}/pause"><button type="submit">暂停</button></form>
+      {{end}}
+      <form method="post" action="/api/v1/tasks/{{.ID}}/remove"><button type="submit" class="danger">移除</button></form>
+    </div>
+  </li>
+  {{end}}
+</ul>
+{{else}}
+<p class="empty">队列是空的。命中了规则的条目会在这里出现。</p>
+{{end}}
+{{end}}

@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>追番归档 · suzu</title>
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<div class="shell">
+
+  <header class="masthead">
+    <div class="topline">
+      <a class="wordmark" href="/">追番归档 · suzu</a>
+      <span class="nav"><span class="nav-here">面板</span><a href="/subscribe">番剧库</a></span>
+      <span class="engine">{{if .OV.EngineOK}}下载内核 {{.OV.Engine}}{{else}}未接下载内核（仅匹配）{{end}}</span>
+    </div>
+    <h1 class="hero">
+      <span class="hero-label">现在</span>
+      <span class="hero-clock">{{clock .OV.Now}}</span>
+    </h1>
+    <p class="hero-next">
+      {{if .OV.NextPoll.IsZero}}
+        还没有在排期里的订阅
+      {{else}}
+        下一次抓取
+        <span class="hero-next-clock">{{clock .OV.NextPoll}}</span>
+        <span class="hero-next-name">{{.OV.NextPollName}}</span>
+        <span class="hero-next-eta">{{untild .OV.NextPoll .OV.Now}}</span>
+      {{end}}
+      {{if gt .OV.ActivePolls 0}}<span class="hero-busy">正在抓取 {{.OV.ActivePolls}} 个源</span>{{end}}
+    </p>
+  </header>
+
+  <main class="columns">
+
+    <div class="col-main">
+      <section class="panel">
+        <h2>放送轴</h2>
+        <p class="hint">每一行的位置就是它的下一次抓取时刻，黄线是现在。</p>
+        <div data-refresh="/partials/schedule" data-every="20000">
+          {{template "frag-schedule" .}}
+        </div>
+
+        <details class="adder">
+          <summary>新增订阅</summary>
+          <form method="post" action="/api/v1/subscriptions">
+            <div class="grid two">
+              <label>番剧名<input name="name" placeholder="葬送的芙莉莲"></label>
+              <label>分组<input name="group" placeholder="2024秋"></label>
+            </div>
+            <label>订阅地址<input name="url" required placeholder="https://mikanani.me/RSS/Bangumi?bangumiId=..."></label>
+            <div class="grid two">
+              <label>包含关键词，逗号分隔<input name="include" placeholder="1080,简"></label>
+              <label>排除关键词<input name="exclude" placeholder="招募,720"></label>
+            </div>
+            <div class="grid three">
+              <label>偏好字幕组<input name="prefer" placeholder="喵萌奶茶屋,LoliHouse"></label>
+              <label>起始集数<input name="start_ep" placeholder="1"></label>
+              <label>轮询间隔（分钟）<input name="interval_min" placeholder="30"></label>
+            </div>
+            <label>下载目录，留空用默认<input name="save_path" placeholder="/mnt/usb/downloads"></label>
+            <button type="submit">添加并立即试跑一次</button>
+          </form>
+        </details>
+      </section>
+
+      <section class="panel">
+        <h2>最近判定</h2>
+        <p class="hint">每条发布为什么被收下或被跳过，都在这里交代清楚。</p>
+        <div data-refresh="/partials/verdict" data-every="15000">
+          {{template "frag-verdict" .}}
+        </div>
+      </section>
+    </div>
+
+    <div class="col-side">
+      <section class="panel">
+        <h2>下载队列</h2>
+        <div data-refresh="/partials/queue" data-every="5000">
+          {{template "frag-queue" .}}
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>最近入库</h2>
+        <div data-refresh="/partials/library" data-every="30000">
+          {{template "frag-library" .}}
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>活动流</h2>
+        <div data-refresh="/partials/activity" data-every="8000">
+          {{template "frag-activity" .}}
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="foot">
+    <span>常驻内存 <b>{{printf "%.1f" .OV.MemAllocMiB}} MiB</b></span>
+    <span>协程 <b>{{.OV.Goroutines}}</b></span>
+    <span>运行 <b>{{dur .OV.Uptime}}</b></span>
+    <span>库内文件 <b>{{.OV.LibraryTotal}}</b></span>
+    {{range $k, $v := .OV.Counts}}<span>{{statusCountLabel $k}} <b>{{$v}}</b></span>{{end}}
+    <span class="ver">{{.OV.Version}}</span>
+  </footer>
+
+</div>
+<script src="/static/app.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>番剧库 · 追番归档</title>
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<div class="shell">
+
+  <header class="masthead">
+    <div class="topline">
+      <a class="wordmark" href="/">追番归档 · suzu</a>
+      <span class="nav"><span class="nav-here">番剧库</span><a href="/">面板</a></span>
+    </div>
+    <p class="hero-next">
+      从蜜柑计划搜番剧，挑一条字幕组的源，剩下的交给放送轴。
+    </p>
+  </header>
+
+  <main>
+    <section class="panel">
+      <form class="finder" method="get" action="/subscribe">
+        <label class="sr-only" for="q">番剧名</label>
+        <input id="q" name="q" type="text" value="{{.Query}}" placeholder="番剧名，或者直接粘贴蜜柑番剧链接" autocomplete="off" autofocus>
+        <button type="submit">搜索</button>
+      </form>
+      {{if .OK}}<p class="flash ok">{{.OK}}</p>{{end}}
+      {{if .Err}}<p class="flash err">{{.Err}}</p>{{end}}
+      {{if not .MikanOn}}
+      <p class="hint">番剧刮削已关闭（<span class="mono">metadata.enabled = false</span>），这里搜不了。
+        仍然可以在面板里粘贴蜜柑的 RSS 地址手动订阅。</p>
+      {{end}}
+    </section>
+
+    {{if .Detail}}
+    <section class="show">
+      <div class="show-head">
+        <span class="air-glyph{{if not .Detail.Day}} blank{{end}}">{{.Detail.Day}}</span>
+        <img class="show-poster" src="/api/v1/covers/{{.Detail.B.ID}}.jpg" alt="" data-fallback="{{initial .Detail.B.Title}}">
+        <div class="show-info">
+          <h2 class="show-title">{{.Detail.B.Title}}{{if .Detail.B.Score}}<span class="score mono">BGM {{printf "%.1f" .Detail.B.Score}}</span>{{end}}</h2>
+          <p class="meta-line">
+            {{if .Detail.B.AirText}}<span>放送 {{.Detail.B.AirText}}</span>{{end}}
+            {{if .Detail.B.Episodes}}<span>共 {{.Detail.B.Episodes}} 集</span>{{end}}
+            {{if .Detail.B.StartAt}}<span>开播 {{.Detail.B.StartAt}}</span>{{end}}
+            <span class="mono">蜜柑 #{{.Detail.B.ID}}</span>
+          </p>
+          <p class="meta-line faint">
+            共 {{len .Detail.Options}} 个字幕组
+            {{if .Detail.B.Official}}<a href="{{.Detail.B.Official}}" target="_blank" rel="noopener">官网</a>{{end}}
+            <a href="{{.Detail.MikanURL}}" target="_blank" rel="noopener">在蜜柑上看</a>
+            <a href="/subscribe?q={{.Detail.B.Title}}">换个番剧</a>
+          </p>
+          {{if .Detail.B.Summary}}<p class="intro">{{.Detail.B.Summary}}</p>{{end}}
+        </div>
+      </div>
+
+      <form class="picker" method="post" action="/api/v1/bangumi/subscribe">
+        <input type="hidden" name="mikan_id" value="{{.Detail.B.ID}}">
+        <p class="hint">
+          勾选要跟的字幕组，一个字幕组一条订阅，之后可以单独调间隔和过滤词。
+          {{if .Detail.AutoLabel}}不勾选时按偏好自动挑 <b>{{.Detail.AutoLabel}}</b>。{{end}}
+          默认只跟新出的集数，不会把往期一口气拉下来。
+        </p>
+        {{if .Detail.Options}}
+        <ul class="sg-list">
+          {{range .Detail.Options}}
+          <li{{if .Subbed}} class="is-subbed"{{end}}>
+            <label>
+              <input type="checkbox" name="sg" value="{{.ID}}"{{if .Subbed}} disabled{{end}}>
+              <span class="sg-name mono">{{.Name}}</span>
+              {{if .Picked}}<span class="tag pick">偏好</span>{{end}}
+              {{if .Subbed}}<span class="tag">已订阅</span>{{end}}
+            </label>
+          </li>
+          {{end}}
+        </ul>
+        {{end}}
+        <div class="picker-foot">
+          <button type="submit" class="primary">订阅选中的字幕组</button>
+          <button type="submit" name="auto" value="1">按偏好自动挑一个</button>
+          <span class="picker-fields">
+            <label class="check"><input type="checkbox" name="backfill" value="1"> 连往期一起下</label>
+            <label>分组<input name="group" value="{{.Detail.B.Title}}" size="14"></label>
+            <label>间隔<input name="interval_min" value="30" size="3"> 分钟</label>
+          </span>
+        </div>
+      </form>
+    </section>
+    {{end}}
+
+    {{if .Results}}
+    <section class="panel">
+      <h2>搜索结果</h2>
+      <p class="hint">蜜柑上一共 {{len .Results}} 部，点「挑字幕组」选源。</p>
+      <ol class="finder-list">
+        {{range .Results}}
+        <li class="finder-row">
+          <a class="finder-poster" href="/subscribe?id={{.B.ID}}">
+            <img src="/api/v1/covers/{{.B.ID}}.jpg" alt="" loading="lazy" data-fallback="{{initial .B.Title}}">
+          </a>
+          <div class="finder-body">
+            <h3 class="finder-title"><a href="/subscribe?id={{.B.ID}}">{{.B.Title}}</a></h3>
+            <p class="meta-line">
+              {{if .B.AirText}}<span>放送 {{.B.AirText}}</span>{{end}}
+              {{if .B.Episodes}}<span>共 {{.B.Episodes}} 集</span>{{end}}
+              {{if .B.StartAt}}<span>开播 {{.B.StartAt}}</span>{{end}}
+              <span class="mono">蜜柑 #{{.B.ID}}</span>
+              {{if .Subbed}}<span class="tag">已订阅 {{.Subbed}} 条</span>{{end}}
+            </p>
+            <p class="meta-line">
+              <a href="/subscribe?id={{.B.ID}}">挑字幕组</a>
+              <a href="{{.MikanURL}}" target="_blank" rel="noopener">在蜜柑上看</a>
+            </p>
+          </div>
+        </li>
+        {{end}}
+      </ol>
+    </section>
+    {{else if .Query}}
+    <section class="panel">
+      <h2>没搜到</h2>
+      <p class="empty">
+        蜜柑上没找到「{{.Query}}」。试试番剧的正式译名，或者把番剧页链接整条粘进来
+        （形如 <span class="mono">https://mikanani.me/Home/Bangumi/3141</span>）。
+      </p>
+    </section>
+    {{end}}
+
+    <section class="panel">
+      <h2>正在订阅</h2>
+      {{if .OV.Subs}}
+      <p class="hint">共 {{len .OV.Subs}} 条源。管理排期与过滤词在<a href="/">面板</a>上做。</p>
+      <ol class="subs-list">
+        {{range .OV.Subs}}
+        <li>
+          <span class="thumb">
+            {{if .HasCover}}
+            <img src="/api/v1/covers/{{.MikanID}}.jpg" alt="" loading="lazy" data-fallback="{{initial .Name}}">
+            {{else}}
+            <span class="poster-blank">{{initial .Name}}</span>
+            {{end}}
+          </span>
+          <span class="subs-body">
+            <span class="subs-show">
+              {{if .Show}}{{.Show}}{{else}}{{.Name}}{{end}}
+              {{if .Day}}<span class="air-glyph small">{{.Day}}</span>{{end}}
+            </span>
+            <span class="meta-line faint">
+              <span class="mono">{{fansub .Name}}</span>
+              <span class="mono">每 {{.IntervalMin}} 分钟</span>
+              {{if .Episodes}}<span class="mono">共 {{.Episodes}} 集</span>{{end}}
+              {{if .NextPoll.IsZero}}<span class="mono">未排期</span>{{else}}<span class="mono">{{clock .NextPoll}} 抓取</span>{{end}}
+              {{if .LastError}}<span class="err">上次失败</span>{{end}}
+            </span>
+          </span>
+          <span class="subs-acts">
+            <form method="post" action="/api/v1/subscriptions/{{.ID}}/poll"><input type="hidden" name="next" value="/subscribe"><button type="submit">刷新</button></form>
+            <form method="post" action="/api/v1/subscriptions/{{.ID}}/toggle"><input type="hidden" name="next" value="/subscribe"><button type="submit">{{if .Enabled}}停用{{else}}启用{{end}}</button></form>
+            <form method="post" action="/api/v1/subscriptions/{{.ID}}/delete"><input type="hidden" name="next" value="/subscribe"><button type="submit" class="danger">删除</button></form>
+          </span>
+        </li>
+        {{end}}
+      </ol>
+      {{else}}
+      <p class="empty">还没有订阅。上面搜一个番剧，勾字幕组，就能开始。</p>
+      {{end}}
+    </section>
+  </main>
+
+  <footer class="foot">
+    <span>常驻内存 <b>{{printf "%.1f" .OV.MemAllocMiB}} MiB</b></span>
+    <span>协程 <b>{{.OV.Goroutines}}</b></span>
+    <span>库内文件 <b>{{.OV.LibraryTotal}}</b></span>
+    {{if .Prefers}}<span>偏好字幕组 <b>{{range $i, $p := .Prefers}}{{if $i}} · {{end}}{{$p}}{{end}}</b></span>{{end}}
+    <span class="ver">{{.OV.Version}}</span>
+  </footer>
+
+</div>
+<script src="/static/app.js" defer></script>
+</body>
+</html>

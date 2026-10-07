@@ -1,0 +1,50 @@
+[Unit]
+Description=suzu 番剧订阅归档器
+Documentation=https://github.com/YoisakiKnd/IWantWatchAnime
+# aria2 由独立的 unit 管理。这里是"弱依赖"：不强制等它，但争取让它在前面起。
+# 注意启动语义：suzu 起来时会 Ping 一次下载内核（对 aria2 只是一个 getVersion），
+# 探不到就直接退出，然后由下面的 Restart=always 每 5 秒重试 —— 所以 aria2 晚起没关系，
+# 但 unit 名字写错会让你看到一个"每 5 秒重启一次"的服务，去 journalctl 看那行错误就有答案。
+After=network-online.target aria2.service
+Wants=network-online.target aria2.service
+
+[Service]
+Type=simple
+User=suzu
+Group=suzu
+WorkingDirectory=/opt/suzu
+ExecStart=/opt/suzu/suzu -config /opt/suzu/config.toml
+Restart=always
+RestartSec=5
+
+# 内存与 CPU 护栏：玩客云只有 1GB，跑飞了会连 SSH 都进不去。
+MemoryMax=192M
+MemoryHigh=144M
+CPUWeight=20
+Nice=5
+IOSchedulingClass=best-effort
+IOSchedulingPriority=6
+
+# eMMC 保护：除了数据盘上的几个目录，其余一律只读。
+# 这就是「eMMC 无法覆写」那类事故的应用层答案——不去动根文件系统。
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictRealtime=true
+LockPersonality=true
+# 日志只进 journald 与 stdout，不写本地文件；需要持久化就把 journald 的
+# Storage 指到数据盘，或用 Storage=volatile 让它只留在内存里。
+StandardOutput=journal
+StandardError=journal
+
+# 只有这三个目录可写：数据库、下载、媒体库（都在外接盘上）。
+ReadWritePaths=/mnt/usb/suzu /mnt/usb/downloads /mnt/usb/library
+
+[Install]
+WantedBy=multi-user.target

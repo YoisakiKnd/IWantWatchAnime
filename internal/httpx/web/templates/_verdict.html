@@ -1,0 +1,22 @@
+{{define "frag-verdict"}}
+{{if .OV.Items}}
+<ul class="items">
+  {{range .OV.Items}}
+  <li class="item {{.Status}}">
+    <div class="item-head">
+      <span class="item-title" title="{{.Title}}">{{shortTitle .Title 34}}</span>
+      <span class="state">{{itemLabel .Status}}</span>
+    </div>
+    <div class="item-meta">
+      <span>{{epLabel .}}</span>
+      <span>{{kindLabel .}}</span>
+      {{if .Fansub}}<span class="fansub">{{.Fansub}}</span>{{end}}
+    </div>
+    {{if .Reason}}<div class="reason">{{.Reason}}</div>{{end}}
+  </li>
+  {{end}}
+</ul>
+{{else}}
+<p class="empty">还没有解析到任何发布。</p>
+{{end}}
+{{end}}

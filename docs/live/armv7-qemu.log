@@ -1,0 +1,9 @@
+time=2026-10-06T16:03:45.361Z level=INFO msg=已从配置文件导入种子订阅 count=1
+time=2026-10-06T16:03:45.366Z level=INFO msg=调度就绪 订阅数=1
+time=2026-10-06T16:03:45.409Z level=INFO msg=下载内核就绪 kind=aria2
+time=2026-10-06T16:03:45.429Z level=WARN msg="面板无认证（按配置只监听本机，局域网访问不到）。设上 server.user / server.password 会更稳妥"
+time=2026-10-06T16:03:45.430Z level=INFO msg=面板已启动 地址=http://127.0.0.1:8647 数据目录=/tmp/armv7/data 下载目录=/tmp/armv7/downloads 媒体库=/tmp/armv7/library 版本=dev 目标=linux/arm
+time=2026-10-06T16:03:54.323Z level=INFO msg=轮询完成 订阅=葬送的芙莉莲 条目=3 投递=3 过滤=0 耗时=39ms
+time=2026-10-06T16:03:55.454Z level=INFO msg=入库完成 标题=葬送的芙莉莲 方式=硬链接 路径="/tmp/armv7/library/2024秋/葬送的芙莉莲/第 01 季/葬送的芙莉莲 - S01E01.mkv"
+time=2026-10-06T16:03:55.508Z level=INFO msg=入库完成 标题=葬送的芙莉莲 方式=硬链接 路径="/tmp/armv7/library/2024秋/葬送的芙莉莲/第 01 季/葬送的芙莉莲 - S01E02.mkv"
+time=2026-10-06T16:03:55.560Z level=INFO msg=入库完成 标题=葬送的芙莉莲 方式=硬链接 路径="/tmp/armv7/library/2024秋/葬送的芙莉莲/第 01 季/葬送的芙莉莲 - S01E03.mkv"

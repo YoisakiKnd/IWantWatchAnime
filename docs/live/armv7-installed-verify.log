@@ -1,0 +1,20 @@
+### 用安装器渲染出来的配置真的起一遍（armv7 二进制，binfmt 跑在 qemu 上）
+$ /tmp/dp2/data/suzu/suzu -config /tmp/dp2/data/suzu/config.toml -listen 127.0.0.1:8662
+time=2026-10-06T16:16:54.214Z level=INFO msg=调度就绪 订阅数=0
+time=2026-10-06T16:16:54.280Z level=INFO msg=下载内核就绪 kind=aria2
+time=2026-10-06T16:16:54.319Z level=INFO msg=面板已启动 地址=http://127.0.0.1:8662 数据目录=/tmp/dp2/data/suzu/data 下载目录=/tmp/dp2/data/downloads 媒体库=/tmp/dp2/data/library 版本=dev 目标=linux/arm
+
+### 认证是否真的挡住（安装器生成的配置 = 有密码 + 只听本机）
+不带凭据 /        → 401
+不带凭据 /healthz → 200（设计上放行，给探活用）
+错密码   /        → 401
+带凭据   /        → 200
+
+### 这台实例真连蜜柑（安装器的配置里 enabled = true）
+搜到 2 部： [(3141, '葬送的芙莉莲'), (3821, '葬送的芙莉莲 第二季')]
+
+### 下载内核不在时的启动语义（此刻 6800 上确实没有 aria2）
+确认 6800 已停 ✓
+time=2026-10-06T16:17:03.948Z level=INFO msg=调度就绪 订阅数=0
+time=2026-10-06T16:17:03.981Z level=ERROR msg=启动失败 err="aria2 内核未就绪: 连接 aria2: Post \"http://127.0.0.1:6800/jsonrpc\": dial tcp 127.0.0.1:6800: connect: connection refused（请先启动 aria2c --enable-rpc，或用 engine.kind = \"none\" 只跑匹配调试规则）"
+退出码=1

@@ -1,0 +1,132 @@
+# suzu 配置示例
+# 用法：cp config.example.toml config.toml 后修改。
+# 所有路径都可以是相对路径（相对进程工作目录）或绝对路径。
+
+[server]
+# 默认只监听本机（最安全）。想在手机/电视上看面板，改成 0.0.0.0:8637，
+# 但那时必须设上下面的 user/password —— 否则程序会拒绝启动。
+listen = "127.0.0.1:8637"
+# 面板能删订阅、能删文件、能暂停任务，务必设密码。
+# 只监听本机时留空也允许（别的机器访问不到）；对局域网开放时留空会直接报错退出。
+user = "admin"
+password = "换成你自己的密码"
+# 给脚本用的长期令牌，配合 Header: X-Api-Token
+token = ""
+accept_token = true
+
+[storage]
+# 数据目录：数据库与快照。
+# 强烈建议放在外接数据盘（ext4）而不是 eMMC —— 玩客云的 eMMC 写寿命很脆弱。
+data_dir = "/mnt/usb/suzu/data"
+# 定时用 VACUUM INTO 生成一致性快照（分钟），0 表示关闭。
+snapshot_min = 360
+# 活动流保留行数上限，避免长年运行把这张表撑大。
+keep_events_rows = 2000
+
+[engine]
+# aria2 | qbittorrent | none
+# none = 只做订阅与规则匹配不下载，用来调过滤规则非常方便。
+kind = "aria2"
+
+[engine.aria2]
+endpoint = "http://127.0.0.1:6800/jsonrpc"
+secret = ""
+# 下载目录（挂在外接盘上）
+dir = "/mnt/usb/downloads"
+# armv7 上 30 个 peer 足够跑满家庭宽带；调大会显著吃 CPU。
+max_peers = 30
+# 下载完做种多少分钟，0 表示下完即停（省电、省 CPU）。
+seed_time_min = 0
+
+[engine.qbittorrent]
+# 内网已经有 qBittorrent 时用这个，engine.kind 改成 qbittorrent
+endpoint = "http://192.168.1.5:8080"
+user = "admin"
+password = ""
+category = "anime"
+
+[library]
+# 媒体库根目录，Jellyfin/Emby/Kodi 直接扫这里
+root = "/mnt/usb/library"
+# 命名模板可用变量：
+#   {title} {group} {fansub} {season} {episode} {episode_to} {span} {ep} {sxxexx}
+#   {resolution} {codec} {source} {kind}
+# 数字变量支持补零宽度，例如 {episode:03d}
+# {span} = 集数或合集区间：单集是 03，合集是 01-28；合集建议用它命名，别用 {episode}
+name_rule = "{group}/{title}/第 {season:02d} 季/{title} - S{season:02d}E{span}"
+# hardlink = 不占额外空间（推荐，但 exFAT/FAT32/NTFS 不支持，会自动降级为复制）
+# copy / move
+link_mode = "hardlink"
+write_nfo = true
+# 复制前要求的最小剩余空间，不够就明确报错而不是写到一半失败
+min_free_gib = 2
+
+[metadata]
+# 番剧库刮削（蜜柑 + Bangumi）。默认开启：断网只会让番剧库变空，不影响下载。
+enabled = true
+# mikan | none
+provider = "mikan"
+# 蜜柑站点地址。连不上时可以换镜像，例如 https://mikanime.tv
+mikan_base = "https://mikanani.me"
+# 两次抓取之间至少隔多少毫秒。别调太小，那是给站点添堵。
+min_gap_ms = 1200
+# 番剧详情的内存缓存时长（小时）：搜索卡片与详情页共用
+cache_hours = 12
+# 封面缓存目录，留空 = storage.data_dir/covers
+cover_dir = ""
+# 全局字幕组偏好，一键订阅时按这个顺序挑。
+# 服务器端没有的那几个会自动顺延到后面的。
+prefer = ["喵萌奶茶屋", "LoliHouse", "ANi"]
+# 把封面存成媒体库里的 poster.jpg，Jellyfin/Kodi 才有海报
+fetch_poster = true
+timeout_s = 12
+# Bangumi 账号 token，留空也能用（匿名额度够刮简介与评分）
+bgm_token = ""
+# Bangumi 接口地址，留空 = 官方 https://api.bgm.tv；可填镜像或自建
+bgm_base = ""
+
+[relink]
+# 断种自动换链：一集卡着下不动时，自动改投同集另一个字幕组的版本。
+# 老番的种子常年没人做种是常态，没有这个功能就得手动去重下载。
+enabled = true
+# 卡在 0% 超过这么久就认定断种（小时，会被夹到 1~72）
+stuck_hours = 6
+# 同一集最多换几次（会被夹到 1~5），防止在几个死种之间来回投递
+max_per_episode = 2
+
+[notify]
+# 通用 webhook，POST JSON {source,title,body,ts}
+webhooks = []
+throttle_min = 5
+
+[notify.telegram]
+bot_token = ""
+chat_id = ""
+
+[runtime]
+# 进程内存硬上限（GOMEMLIMIT）。1GB 的机器设 48~96 比较稳。
+mem_limit_mib = 64
+# 并发拉取数。单核 A5 上 2 已经够，最多会被夹到 4。
+poll_workers = 2
+# 下载进度对账间隔（秒）
+reconcile_sec = 15
+http_timeout_s = 25
+# 单个 feed 最多读多少字节，防止坏源把内存打满
+feed_max_bytes = 8388608
+# debug | info | warn | error
+log_level = "info"
+
+# ---------------------------------------------------------------------------
+# 首启动的种子订阅。数据库为空时才会导入，之后以数据库/面板为准。
+# 面板上也能直接添加订阅，这个段主要方便批量导入。
+# ---------------------------------------------------------------------------
+
+# [[feeds]]
+# name = "葬送的芙莉莲"
+# url = "https://mikanani.me/RSS/Bangumi?bangumiId=2996&subgroupid=12"
+# group = "2024秋"
+# interval_min = 30
+# include = ["1080", "简"]
+# exclude = ["招募", "720"]
+# prefer = ["喵萌奶茶屋", "LoliHouse"]
+# start_ep = 1

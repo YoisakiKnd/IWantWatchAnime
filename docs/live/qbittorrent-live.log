@@ -1,0 +1,11 @@
+time=2026-10-06T15:13:16.870Z level=INFO msg=调度就绪 订阅数=1
+time=2026-10-06T15:13:16.948Z level=INFO msg=下载内核就绪 kind=qbittorrent
+time=2026-10-06T15:13:16.951Z level=WARN msg="未配置面板账号密码，接口处于无认证状态，请尽快设置 server.user / server.password"
+time=2026-10-06T15:13:16.951Z level=INFO msg=面板已启动 地址=http://127.0.0.1:8638 数据目录=/tmp/demo2/data 下载目录=/tmp/demo2/downloads 媒体库=/tmp/demo2/library 版本=dev 目标=linux/amd64
+time=2026-10-06T15:13:16.952Z level=INFO msg=下载已完成（在做种），按完成入库 任务=1 进度=100
+time=2026-10-06T15:13:16.955Z level=INFO msg=入库完成 标题=别当欧尼酱了 方式=硬链接 路径="/tmp/demo2/library/别当欧尼酱了/第 01 季/别当欧尼酱了 - S01E01.mkv"
+time=2026-10-06T15:13:21.859Z level=INFO msg=轮询完成 订阅="真机 qBittorrent 联调" 条目=1 投递=0 过滤=0 耗时=2ms
+time=2026-10-06T15:13:56.455Z level=INFO msg=轮询完成 订阅="真机 qBittorrent 联调" 条目=1 投递=0 过滤=0 耗时=1ms
+time=2026-10-06T15:16:21.687Z level=INFO msg=收到退出信号，正在收尾
+time=2026-10-06T15:16:21.687Z level=INFO msg=流水线停止
+time=2026-10-06T15:16:21.688Z level=INFO msg=已退出

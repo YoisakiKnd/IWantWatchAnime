@@ -1,0 +1,5 @@
+[16:03:33] /hook {"t":"arm-probe"}
+[16:03:54] /hook {"body":"葬送的芙莉莲：feed 共 3 条，投递 3，过滤 0，跳过 0","source":"suzu","title":"已投递 3 个新任务","ts":1791302634}
+[16:03:55] /hook {"body":"第 1 集\n硬链接\n/tmp/armv7/library/2024秋/葬送的芙莉莲/第 01 季/葬送的芙莉莲 - S01E01.mkv","source":"suzu","title":"入库完成：葬送的芙莉莲","ts":1791302635}
+[16:03:55] /hook {"body":"第 2 集\n硬链接\n/tmp/armv7/library/2024秋/葬送的芙莉莲/第 01 季/葬送的芙莉莲 - S01E02.mkv","source":"suzu","title":"入库完成：葬送的芙莉莲","ts":1791302635}
+[16:03:55] /hook {"body":"第 3 集\n硬链接\n/tmp/armv7/library/2024秋/葬送的芙莉莲/第 01 季/葬送的芙莉莲 - S01E03.mkv","source":"suzu","title":"入库完成：葬送的芙莉莲","ts":1791302635}

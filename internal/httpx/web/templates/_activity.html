@@ -1,0 +1,14 @@
+{{define "frag-activity"}}
+{{if .OV.Events}}
+<ul class="events">
+  {{range .OV.Events}}
+  <li class="{{.Kind}}">
+    <time>{{clock .At}}</time>
+    <span>{{.Message}}</span>
+  </li>
+  {{end}}
+</ul>
+{{else}}
+<p class="empty">还没有活动记录。轮询、投递、入库都会留在这里。</p>
+{{end}}
+{{end}}

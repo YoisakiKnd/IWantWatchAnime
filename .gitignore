@@ -1,0 +1,16 @@
+# 构建产物与运行期数据 —— 只忽略仓库根目录下的，别误伤 internal/library、cmd/suzu 这种源码目录。
+/bin/
+/data/
+/downloads/
+/library/
+/config.toml
+/suzu
+*.db
+*.db-wal
+*.db-shm
+*.snapshot.db
+
+# CodeGraph 本地索引（工具生成的，不进仓库）
+.codegraph/
+
+# 真机联调日志（docs/live/*.log）要跟着仓库走：它们是验证证据，不是产物。

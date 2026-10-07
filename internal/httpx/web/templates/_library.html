@@ -1,0 +1,20 @@
+{{define "frag-library"}}
+{{if .OV.Library}}
+<ul class="library">
+  {{range .OV.Library}}
+  <li>
+    <div class="lib-title">{{.Title}}</div>
+    <div class="lib-path" title="{{.Path}}">{{.Path}}</div>
+    <div class="lib-meta">
+      <span class="mode">{{if .Linked}}硬链接{{else}}复制{{end}}</span>
+      <span>{{libEpLabel .}}</span>
+      <span>{{since .AddedAt}}</span>
+    </div>
+  </li>
+  {{end}}
+</ul>
+<p class="hint">硬链接表示没有额外占用空间。</p>
+{{else}}
+<p class="empty">还没入库任何文件。第一条下载完成后会自动出现在这里。</p>
+{{end}}
+{{end}}
