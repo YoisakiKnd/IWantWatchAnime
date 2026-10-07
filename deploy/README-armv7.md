@@ -11,11 +11,29 @@
 | 移动硬盘无法引导 | suzu 完全不碰引导。你的系统怎么起来还是怎么起来（eMMC 里的原系统 / U 盘 / SD 卡都行），suzu 只是系统起来之后挂在盘上的一个普通服务。 |
 | 没有 armv7 的看番方案 | 静态链接的 `ELF 32-bit ARM` 二进制，15 MB，无 CGO 无动态库依赖。`aria2` 用系统包管理器装。 |
 
-## 1. 在开发机上编二进制
+## 1. 拿到二进制（两条路，选一条）
+
+**路 A：直接从 release 下（盒子上不需要 Go）**
+
+每个 tag 都会自动出包，下 armv7 那个部署包，解开就齐了：
+
+```bash
+cd /tmp
+curl -fLO https://github.com/YoisakiKnd/IWantWatchAnime/releases/latest/download/suzu-linux-armv7
+curl -fLO https://github.com/YoisakiKnd/IWantWatchAnime/releases/latest/download/SHA256SUMS
+sha256sum -c SHA256SUMS        # 先验校验和，再谈安装
+chmod +x suzu-linux-armv7
+```
+
+想要"连部署材料一起"的那种包：下 `suzu-<版本>-armv7.tar.gz`，解开是
+`suzu-linux-armv7` + `deploy/install.sh` + 配置模板 + systemd 单元 + 这份文档。
+
+**路 B：自己编（想改代码时走这条）**
 
 ```bash
 make armv7                 # → bin/suzu-linux-armv7
 file bin/suzu-linux-armv7   # 应为 ELF 32-bit LSB executable, ARM, EABI5, statically linked
+make dist                  # 想要打包好的那种：四个平台 + SHA256SUMS + armv7 部署包
 ```
 把这个二进制、`deploy/` 整个目录一起传到盒子上（`scp -r` 或 U 盘拷）。
 

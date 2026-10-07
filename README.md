@@ -1,5 +1,8 @@
 # suzu · 追番归档（IWantWatchAnime）
 
+[![ci](https://github.com/YoisakiKnd/IWantWatchAnime/actions/workflows/ci.yml/badge.svg)](https://github.com/YoisakiKnd/IWantWatchAnime/actions/workflows/ci.yml)
+[![release](https://img.shields.io/github/v/release/YoisakiKnd/IWantWatchAnime)](https://github.com/YoisakiKnd/IWantWatchAnime/releases/latest)
+
 给 **玩客云 / N1 / 树莓派 / 任意 armv7 或 arm64 小机器** 用的番剧订阅下载归档器：
 订阅 RSS → 按规则挑版本 → 交给 aria2 下载 → 自动重命名并硬链接进媒体库 → Jellyfin/Emby/Kodi 直接扫。
 
@@ -87,7 +90,22 @@
 
 ## 快速开始
 
-### 1. 在电脑上交叉编译（推荐，不要在玩客云上编）
+### 0. 直接下现成的（最省事，盒子上不需要 Go）
+
+每个 tag 都会自动出四个平台的二进制与一个 armv7 部署包：
+
+```bash
+# 玩客云 / armv7 那一份（含部署材料）
+curl -fLO https://github.com/YoisakiKnd/IWantWatchAnime/releases/latest/download/suzu-linux-armv7
+curl -fLO https://github.com/YoisakiKnd/IWantWatchAnime/releases/latest/download/SHA256SUMS
+sha256sum -c SHA256SUMS                          # 先验一遍再装
+chmod +x suzu-linux-armv7
+```
+
+要连部署材料一起拿（盒子上只有这个包也能装完），下 `suzu-<版本>-armv7.tar.gz`，
+解开就是二进制 + `deploy/install.sh` + 配置模板 + systemd 单元 + 上机文档。
+
+### 1. 或者自己交叉编译（想在本地改代码时用这条）
 
 ```bash
 git clone https://github.com/YoisakiKnd/IWantWatchAnime && cd IWantWatchAnime
@@ -211,6 +229,29 @@ max_per_episode = 2                  # 同一集最多换几次（夹到 1~5）
 ---
 
 ## 开发
+
+### CI 怎么编的
+
+- `ci.yml`：每次推 `main` 与每个 PR 跑 —— gofmt 检查、`go vet`、全量测试、**四个平台都交叉编译一遍**
+  （armv7 是目标平台，只有每次都编才不会出现"本地 x86 编得过、交叉编译悄悄坏了"），产物存档 14 天。
+- `release.yml`：推 `v*` tag 自动发版 —— 测试 → `make dist` → 核对 armv7 真是 32 位 ARM →
+  核对二进制自报版本等于 tag → `gh release create` 挂上四个二进制 + 部署包 + `SHA256SUMS`
+  → **再从 release 下载回来校验一遍**（对比校验和与架构）。
+- 两边都只调 `make dist` / `make fmt-check`，不在工作流里另写 `go build`：本地和 CI 共用一套构建参数。
+- 联网的真机用例（`MIKAN_LIVE` / `BGM_LIVE` / `QBT_LIVE`）默认跳过，所以 CI 不需要外网也不需要凭据。
+
+本地想跑一模一样的门禁：
+
+```bash
+make fmt-check && go vet ./... && go test ./... -count=1 && make dist
+```
+
+发布一个版本：
+
+```bash
+git tag v0.1.0 && git push origin v0.1.0      # 剩下的交给 release.yml
+```
+
 
 ```bash
 make test            # 全部单测 + 端到端（本地假 RSS + 假 aria2，不联网）

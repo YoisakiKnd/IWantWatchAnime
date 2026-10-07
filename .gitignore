@@ -14,3 +14,4 @@
 .codegraph/
 
 # 真机联调日志（docs/live/*.log）要跟着仓库走：它们是验证证据，不是产物。
+/dist/

@@ -1,0 +1,79 @@
+name: release
+
+# 打 tag 就发版：四个平台的二进制 + 校验和 + 玩客云用的部署包一起挂上去。
+# 这样盒子上不需要 Go 环境，一条 curl 就能拿到二进制：
+#   curl -fLO https://github.com/YoisakiKnd/IWantWatchAnime/releases/latest/download/suzu-linux-armv7
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 要发版的 tag（已存在）
+        required: true
+
+permissions:
+  contents: write        # gh release create 需要写权限
+
+jobs:
+  release:
+    name: 编译并发版
+    runs-on: ubuntu-latest
+    steps:
+      - name: 拉代码（要完整历史，二进制里的版本号取自 tag）
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          # push tag 时 github.sha 就是那个 tag 指向的提交，不用再指定 ref；
+          # 只有手动触发才需要按输入去取对应 tag。
+          ref: ${{ inputs.tag && format('refs/tags/{0}', inputs.tag) || github.sha }}
+
+      - name: 装 Go（版本取自 go.mod）
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: 测试（发版前先证明它是对的）
+        run: go test ./... -count=1
+
+      - name: 编译并打包
+        env:
+          # tag 名直接作为版本号写进二进制，'suzu -version' 打出来的就是这个。
+          VERSION: ${{ inputs.tag || github.ref_name }}
+        run: |
+          make dist VERSION="$VERSION"
+          echo "--- 版本核实（二进制自报的版本必须与 tag 一致）---"
+          ./dist/suzu-linux-amd64 -version
+          ./dist/suzu-linux-amd64 -version | grep -q "$VERSION"
+
+      - name: 核对 armv7 真的是给玩客云的架构
+        run: |
+          file dist/suzu-linux-armv7
+          file dist/suzu-linux-armv7 | grep -q "ELF 32-bit LSB.*ARM"
+          echo "--- 部署包里装了什么 ---"
+          tar tzf dist/suzu-*-armv7.tar.gz
+
+      - name: 发 release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ inputs.tag || github.ref_name }}" \
+            dist/suzu-linux-amd64 \
+            dist/suzu-linux-arm64 \
+            dist/suzu-linux-armv6 \
+            dist/suzu-linux-armv7 \
+            dist/suzu-*-armv7.tar.gz \
+            dist/SHA256SUMS \
+            --title "suzu ${{ inputs.tag || github.ref_name }}" \
+            --generate-notes
+
+      - name: 发完之后回头验一遍（能下载、校验和对得上）
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="${{ inputs.tag || github.ref_name }}"
+          cd /tmp && gh release download "$tag" -R "$GITHUB_REPOSITORY" -D dl
+          cd dl && sha256sum -c SHA256SUMS
+          file suzu-linux-armv7 | grep -q "ELF 32-bit LSB.*ARM"
+          echo "下载回来的产物与本地一致 ✅"

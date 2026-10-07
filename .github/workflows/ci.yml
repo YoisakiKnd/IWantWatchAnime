@@ -1,0 +1,64 @@
+name: ci
+
+# 每次推 main 与每个 PR 都过一遍这道门：格式、vet、测试、四个平台能不能编出来。
+# 交叉编译放进 CI 是有原因的：armv7 是目标平台，只有在 CI 里每次都编，
+# 才不会出现"本地 amd64 编得过、交叉编译悄悄坏了"这种情况。
+on:
+  push:
+    branches: [main]
+    tags-ignore: ['**']      # 打 tag 时走 release 工作流，这里不重复跑
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    name: 门禁（格式 / vet / 测试 / 交叉编译）
+    runs-on: ubuntu-latest
+    steps:
+      - name: 拉代码
+        uses: actions/checkout@v7
+        with:
+          # 版本号来自 git describe，浅克隆会丢掉 tag，二进制里就只剩个短哈希。
+          fetch-depth: 0
+
+      - name: 装 Go（版本取自 go.mod）
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: gofmt
+        run: make fmt-check
+
+      - name: go vet
+        run: go vet ./...
+
+      - name: 测试
+        # 联网的真机用例（MIKAN_LIVE / BGM_LIVE / QBT_LIVE）默认跳过，
+        # 所以这一步不依赖外网，也不需要任何凭据。
+        run: go test ./... -count=1
+
+      - name: 交叉编译四个平台 + 打包
+        run: make dist
+
+      - name: 核对产物架构（armv7 必须是 32 位 ARM）
+        run: |
+          file dist/suzu-linux-armv7 dist/suzu-linux-armv6 dist/suzu-linux-arm64
+          file dist/suzu-linux-armv7 | grep -q "ELF 32-bit LSB.*ARM"
+          file dist/suzu-linux-arm64 | grep -q "ELF 64-bit LSB.*aarch64"
+          file dist/suzu-linux-armv6 | grep -q "ELF 32-bit LSB.*ARM"
+          echo "四个目标的架构都对 ✅"
+
+      - name: 存产物
+        uses: actions/upload-artifact@v7
+        with:
+          name: suzu-linux-all
+          path: |
+            dist/suzu-linux-*
+            dist/*.tar.gz
+            dist/SHA256SUMS
+          if-no-files-found: error
+          retention-days: 14
