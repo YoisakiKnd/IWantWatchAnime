@@ -98,7 +98,7 @@
 # 玩客云 / armv7 那一份（含部署材料）
 curl -fLO https://github.com/YoisakiKnd/IWantWatchAnime/releases/latest/download/suzu-linux-armv7
 curl -fLO https://github.com/YoisakiKnd/IWantWatchAnime/releases/latest/download/SHA256SUMS
-sha256sum -c SHA256SUMS                          # 先验一遍再装
+sha256sum -c --ignore-missing SHA256SUMS          # 只校验你下到的那个文件，先验再装
 chmod +x suzu-linux-armv7
 ```
 

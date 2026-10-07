@@ -21,12 +21,15 @@
 cd /tmp
 curl -fLO https://github.com/YoisakiKnd/IWantWatchAnime/releases/latest/download/suzu-linux-armv7
 curl -fLO https://github.com/YoisakiKnd/IWantWatchAnime/releases/latest/download/SHA256SUMS
-sha256sum -c SHA256SUMS        # 先验校验和，再谈安装
+sha256sum -c --ignore-missing SHA256SUMS   # 只校验你下到的那个（不带 --ignore-missing 会对没下的文件报 FAILED）
 chmod +x suzu-linux-armv7
 ```
 
 想要"连部署材料一起"的那种包：下 `suzu-<版本>-armv7.tar.gz`，解开是
 `suzu-linux-armv7` + `deploy/install.sh` + 配置模板 + systemd 单元 + 这份文档。
+
+> 老固件上若是 BusyBox 的 `sha256sum`（不认 `--ignore-missing`），手动比一下：
+> `sha256sum suzu-linux-armv7` 的输出，应当与 `grep suzu-linux-armv7 SHA256SUMS` 里那一行一致。
 
 **路 B：自己编（想改代码时走这条）**
 
