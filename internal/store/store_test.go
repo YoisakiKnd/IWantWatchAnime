@@ -427,3 +427,74 @@ func TestMigrateBackfillsSeriesID(t *testing.T) {
 		t.Errorf("按路径回填失败: %+v", byPath)
 	}
 }
+
+// 「补下往期」清掉的是被集数起点挡掉的记录，且只清这一种。
+//
+// 清早了/清多了都会出事：条目按 guid 去重，不清就补不回来（用户改了设置却
+// 什么都没发生）；而把「命中排除条件」或已投递的记录一起删掉，则会让下一轮
+// 轮询重新投递用户明确不要的东西。
+func TestClearEpBlockedOnlyRemovesEpisodeFilter(t *testing.T) {
+	ctx := context.Background()
+	st, err := Open(filepath.Join(t.TempDir(), "backfill.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer st.Close()
+
+	subID, err := st.CreateSubscription(ctx, &model.Subscription{
+		Name: "完结番 [A组]", FeedURL: "https://example.invalid/rss",
+		IntervalMin: 30, Enabled: true, StartEp: 13,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	put := func(it model.Item) {
+		it.SubID = subID
+		if _, _, err := st.InsertItemIfNew(ctx, &it); err != nil {
+			t.Fatalf("写入条目 %s: %v", it.GUID, err)
+		}
+	}
+	for i := 1; i <= 3; i++ {
+		put(model.Item{GUID: fmt.Sprintf("e%d", i), Title: fmt.Sprintf("[A组] 完结番 - %02d", i),
+			URI: "magnet:x", Episode: float64(i), Fansub: "A组",
+			Status: model.ItemRejected, Reason: model.ReasonEpBelowStart})
+	}
+	// 被排除条件挡掉的：补下往期后仍然不该下
+	put(model.Item{GUID: "ex", Title: "[B组] 完结番 - 05 特典", URI: "magnet:x",
+		Episode: 5, Fansub: "B组", Status: model.ItemRejected, Reason: "命中排除条件：特典"})
+	// 已经投递出去的
+	put(model.Item{GUID: "done", Title: "[A组] 完结番 - 13", URI: "magnet:x",
+		Episode: 13, Fansub: "A组", Status: model.ItemDone})
+
+	counts, err := st.CountEpBlockedBySub(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if counts[subID] != 3 {
+		t.Fatalf("面板要显示「补下往期 3」，实际 %d", counts[subID])
+	}
+
+	cleared, err := st.ClearEpBlocked(ctx, subID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cleared != 3 {
+		t.Fatalf("应当清掉 3 条被集数挡掉的记录，实际 %d", cleared)
+	}
+
+	items, err := st.ListItems(ctx, 20)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(items) != 2 {
+		t.Fatalf("其余记录不该被删，期望还剩 2 条，实际 %d：%+v", len(items), items)
+	}
+	for _, it := range items {
+		if it.GUID == "ex" && it.Status != model.ItemRejected {
+			t.Errorf("被排除条件挡掉的条目状态被改了：%+v", it)
+		}
+	}
+	if after, err := st.CountEpBlockedBySub(ctx); err != nil || after[subID] != 0 {
+		t.Errorf("清完之后计数应当归零，实际 %d（err=%v）", after[subID], err)
+	}
+}

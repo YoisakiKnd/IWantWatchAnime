@@ -4,6 +4,8 @@ import (
 	"regexp"
 	"strings"
 	"sync"
+
+	"github.com/YoisakiKnd/IWantWatchAnime/internal/model"
 )
 
 // Rule 是一条订阅上的过滤规则。
@@ -75,7 +77,7 @@ func (r Rule) Judge(p Parsed, rawTitle string) Decision {
 		}
 	}
 	if p.Kind == KindTV && r.StartEp > 0 && p.Episode > 0 && p.Episode < r.StartEp {
-		return Decision{OK: false, Reason: "集数低于起始集"}
+		return Decision{OK: false, Reason: model.ReasonEpBelowStart}
 	}
 
 	reason := "规则通过"

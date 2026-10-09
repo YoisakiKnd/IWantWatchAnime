@@ -10,6 +10,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/YoisakiKnd/IWantWatchAnime/internal/config"
 	"github.com/YoisakiKnd/IWantWatchAnime/internal/model"
@@ -41,7 +42,8 @@ type browseRow struct {
 	B        model.Bangumi
 	Day      string
 	MikanURL string
-	Subbed   int // 已经订阅了几个字幕组
+	Subbed   int  // 已经订阅了几个字幕组
+	Finished bool // 已经播完：订阅时会默认连往期一起下
 }
 
 type browseDetail struct {
@@ -52,6 +54,7 @@ type browseDetail struct {
 	Auto      int64 // 按偏好会自动挑中的字幕组 id（0 表示没有偏好命中）
 	HasSub    bool
 	AutoLabel string
+	Finished  bool // 这部番已经播完：页面上把「连往期一起下」默认勾上并说明原因
 }
 
 type subgroupOption struct {
@@ -111,6 +114,7 @@ func (s *Server) browse(w http.ResponseWriter, r *http.Request) {
 				Day:      dayGlyph(b.AirText),
 				MikanURL: s.p.Mikan().BangumiURL(b.ID),
 				Subbed:   subbedByShow[b.ID],
+				Finished: b.Finished(time.Now()),
 			})
 		}
 	}
@@ -122,6 +126,7 @@ func (s *Server) buildDetail(b *model.Bangumi, subbed map[string]bool) *browseDe
 		B:        *b,
 		Day:      dayGlyph(b.AirText),
 		MikanURL: s.p.Mikan().BangumiURL(b.ID),
+		Finished: b.Finished(time.Now()),
 	}
 	// 按偏好排序：用户最想要的那个排第一，一眼看到。
 	for _, sg := range s.p.Mikan().PickSubgroups(b, nil) {
@@ -162,7 +167,10 @@ func (s *Server) apiBrowseSubscribe(w http.ResponseWriter, r *http.Request) {
 		IntervalMin: aToi(r.FormValue("interval_min")),
 		StartEp:     aToFloat(r.FormValue("start_ep")),
 		Backfill:    r.FormValue("backfill") == "1",
-		AutoPick:    1,
+		// 勾选框所在的页面总会带上这个字段，所以「没勾」能被当成明确选择；
+		// 而直接打接口的调用方不带它 —— 那就由后端按番剧是否播完自动决定。
+		BackfillChosen: r.FormValue("backfill_chosen") == "1",
+		AutoPick:       1,
 	}
 	for _, v := range r.Form["sg"] {
 		if id := atoi64(v); id > 0 {
@@ -185,6 +193,9 @@ func (s *Server) apiBrowseSubscribe(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	msg := fmt.Sprintf("已订阅《%s》", res.Bangumi.Title)
+	if res.Backfill {
+		msg += "（连往期一起下）"
+	}
 	if n := len(res.Created); n > 0 {
 		names := make([]string, 0, n)
 		for _, sub := range res.Created {

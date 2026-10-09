@@ -83,6 +83,14 @@ func TestRenderAllTemplates(t *testing.T) {
 	}); err != nil {
 		t.Fatal(err)
 	}
+	// 被「集数低于起始集」挡掉的往期：排期行据此显示「补下往期」按钮。
+	if _, _, err := st.InsertItemIfNew(ctx, &model.Item{
+		SubID: subID, GUID: "g4", Title: "[喵萌奶茶屋] 葬送的芙莉莲 - 02 [1080p]",
+		URI: "magnet:?xt=urn:btih:beef", Episode: 2, Status: model.ItemRejected,
+		Reason: model.ReasonEpBelowStart,
+	}); err != nil {
+		t.Fatal(err)
+	}
 
 	taskID, err := st.CreateTask(ctx, &model.Task{
 		ItemID: itemID, Title: "[喵萌奶茶屋] 葬送的芙莉莲 - 03 [1080p][简日双语]",
@@ -169,6 +177,70 @@ func TestRenderAllTemplates(t *testing.T) {
 	}
 	if bytes.Contains(detailBody, []byte("ZgotmplZ")) {
 		t.Error("番剧详情页出现 ZgotmplZ")
+	}
+	// 3141 是 2023-09-29 开播、共 28 集的完结番：页面要标出来，
+	// 并把「连往期一起下」默认勾上（否则订阅完结番只会下一集）。
+	if !bytes.Contains(detailBody, []byte("已播完")) {
+		t.Error("已播完的番剧详情页应当标出「已播完」")
+	}
+	if !bytes.Contains(detailBody, []byte(`name="backfill" value="1" checked`)) {
+		t.Error("已播完的番剧应当默认勾上「连往期一起下」")
+	}
+	if !bytes.Contains(detailBody, []byte(`name="backfill_chosen"`)) {
+		t.Error("订阅表单必须带上 backfill_chosen：否则用户主动去掉的勾会被后端自动判定推翻")
+	}
+	// 排期行要有「补下往期」按钮（这条订阅里有被起点挡掉的第 2 集）。
+	if !bytes.Contains(detailBody, []byte("补下往期")) {
+		t.Error("有往期被挡掉的订阅应当显示「补下往期」")
+	}
+
+	// 还在播的番：不预勾、也不该标「已播完」——判松了会把在播番整部拉下来。
+	if err := st.UpsertBangumi(ctx, &model.Bangumi{
+		ID: 4020, Title: "Grow Up Show ～向日葵马戏团～", AirText: "星期六",
+		Episodes: 12, StartAt: "10/2/2026", FetchedAt: time.Now(),
+		Subgroups: []model.Subgroup{{ID: 1256, Name: "Nix-Raws", RSS: "/RSS/Bangumi?bangumiId=4020&subgroupid=1256"}},
+	}); err != nil {
+		t.Fatal(err)
+	}
+	airingResp, err := http.Get(ts.URL + "/subscribe?id=4020")
+	if err != nil {
+		t.Fatal(err)
+	}
+	airingBody, _ := io.ReadAll(airingResp.Body)
+	airingResp.Body.Close()
+	if airingResp.StatusCode != http.StatusOK {
+		t.Fatalf("GET /subscribe?id=4020 返回 %d: %s", airingResp.StatusCode, airingBody)
+	}
+	if bytes.Contains(airingBody, []byte("已播完")) {
+		t.Error("还在播的番不该标「已播完」")
+	}
+	if bytes.Contains(airingBody, []byte(`name="backfill" value="1" checked`)) {
+		t.Error("还在播的番不该默认勾上「连往期一起下」")
+	}
+
+	// 「补下往期」这一下必须真的能补：起点退到第 1 集，且清掉被挡的记录。
+	// 只改起始集数是不够的 —— 条目按 guid 去重，留着记录就补不回来。
+	bfResp, err := http.Post(ts.URL+"/api/v1/subscriptions/1/backfill", "application/x-www-form-urlencoded", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	bfResp.Body.Close()
+	if bfResp.StatusCode != http.StatusOK && bfResp.StatusCode != http.StatusSeeOther {
+		t.Errorf("补下往期返回 %d", bfResp.StatusCode)
+	}
+	after, err := st.GetSubscription(ctx, subID)
+	if err != nil || after == nil {
+		t.Fatal(err)
+	}
+	if after.StartEp != 0 {
+		t.Errorf("补下往期后起点应当是 0（从第 1 集拉），实际 %v", after.StartEp)
+	}
+	blocked, err := st.CountEpBlockedBySub(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if blocked[subID] != 0 {
+		t.Errorf("补下往期后不该还留着被挡的记录：%v", blocked)
 	}
 
 	// 首页必须真的带出内容，而不是空壳。

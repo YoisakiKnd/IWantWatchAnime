@@ -173,6 +173,10 @@ events(id, kind, message, at)       -- 面板活动流，行数上限可配
 6. **默认只监听本机，想敞开就必须带密码**：面板能删订阅、能删文件、能暂停任务，又是一个长期在线的进程。默认值要是 `0.0.0.0` 且没密码，全屋任何一台联了 WiFi 的设备都能操作它。所以 `server.listen` 默认 `127.0.0.1:8637`，`Validate` 还会拦下"非回环地址 + 空账号密码"的组合——连 `-listen` 覆盖也一并拦下（校验在覆盖之后跑）。实测：无密码 + `0.0.0.0:8637` 直接退出码 2，设了密码才起得来。
 7. **老库升级就地补列，不要求重装**：`Open` 时逐个 `ensureColumn`（`bangumi.summary/score`、`subscriptions.mikan_id`、`tasks.progress_at`、`library.series_id`），并且回填有意义的值——`progress_at` 用 `created_at` 兜底，`series_id` 先按番剧名、再按"文件路径里有没有番剧目录"两条线索猜一次。升级完直接能用，用户的订阅和入库记录一条不丢。
 
+8. **「只跟新的」对已播完的番是个陷阱，所以默认值按番剧状态分两种**：番剧播完之后，"最新一集"就是最后一集，按"只跟新的"订阅等于**一集都不给**——用户订阅一部完结番，看到的是"订阅了，但什么都没下"（本项目收到的第一个真实投诉）。判定不额外联网：蜜柑详情页本来就带**总集数**与**放送开始**，最后一集的首播时刻 = 开播 + (总集数−1) 周，再留一天宽限（日本深夜番常次日才上线、字幕组还要压一遍）。两个字段缺一个就不猜，保持"只跟新的"——宁可少下，也不要擅自替用户把整部番拉下来。订阅页会按这个判定预勾「连往期一起下」并标出「已播完」，同时带上 `backfill_chosen`：有这个字段才能把"用户主动去掉勾"和"没人表过态（脚本直接打接口）"区分开，否则用户的明确选择会被自动判定推翻。
+
+9. **补往期是三件事，只改起始集数没有用**：被"集数低于起始集"挡掉的条目已经以 `rejected` 落库，而条目按 `guid` 去重——只把起点改小，下一轮轮询会把它们当成"上一轮已处理过"直接跳过，用户改了设置却什么都没发生。所以面板上的「补下往期 N」按钮做的是：退起点到第 1 集 + 删掉这批 `rejected` 记录（只删这一种原因，命中排除词和已投递的记录一律不动）+ 立刻重跑一轮。按钮只在真有被挡条目时才出现（一次 `GROUP BY` 统计，不逐行查）。
+
 ---
 
 
@@ -201,7 +205,10 @@ func RuleJudge(p Parsed, r Rules) Verdict // Verdict{Accept bool, Score int, Rea
 
 ```
 GET  /subscribe?q=名字         搜番剧；?id=3141 打开详情并列出字幕组
-POST /api/v1/bangumi/subscribe  {mikan_id, sg[], backfill, group, interval_min}
+POST /api/v1/bangumi/subscribe  {mikan_id, sg[], backfill, backfill_chosen, group, interval_min}
+                                （backfill_chosen 只在表单里出现：它把"用户主动不要往期"
+                                  与"没人表过态"分开，后者由后端按番剧是否播完自动决定）
+POST /api/v1/subscriptions/{id}/backfill  补下往期：起点退到第 1 集 + 清掉被挡记录 + 立刻重跑
 GET  /api/v1/bangumi/search    JSON 搜索
 GET  /api/v1/covers/3141.jpg   封面代理，命中本地缓存直接回，否则抓一次再缓存
 （封面槽 data/covers/{id}.jpg 由蜜柑或 Bangumi 先到者填充：入库、面板缩略图、
@@ -267,13 +274,15 @@ ssh root@玩客云 'sudo SUZU_DATA=/mnt/usb /root/setup/deploy/install.sh'
 | 验证项 | 结果 |
 | --- | --- |
 | `go vet ./...` / `gofmt` | 干净 |
-| `go test ./...` | 全绿 10 个包（config 阈值夹取、matcher 标题解析、store 迁移与查询、library 命名与番剧元数据、mikan 解析、metadata 刮削、notify 出口、downloader 双内核、pipeline 端到端/换链/做种入库/预热、httpx 模板渲染 + 认证/API） |
+| `go test ./...` | 全绿 11 个包（config 阈值夹取、matcher 标题解析、model 番剧完结判定、store 迁移与查询、library 命名与番剧元数据、mikan 解析、metadata 刮削、notify 出口、downloader 双内核、pipeline 端到端/换链/做种入库/预热/完结番默认值、httpx 模板渲染 + 认证/API） |
 | 端到端链路 | 本地假 RSS + 假 aria2：4 条 → 过滤 → 2 条投递 → 进度对账 → 完成整理入库（硬链接 + NFO）✅ |
 | 断种换链 | 6 个场景：失败换链、卡 0% 换链（含暂停原任务）、到上限停手、用户手动暂停不碰、关掉后不介入、时长文案 ✅ |
 | 断种换链（真机演示） | 在对真实蜜柑 RSS 的演示库上埋一条"卡了 8 小时、进度 0"的任务：下一轮对账（15 秒内）自动改投同集另一版本，原任务标为「断种换链：卡在 0%（8 小时没动静，多半断种）」并暂停，新版本随即下载完成、整理入库 `S01E10.mkv` ✅ |
 | qBittorrent 适配器 | 假 Web API（登录/投递/反查 infohash/状态映射/歧义拒绝）7 个用例 ✅ |
 | qBittorrent 真机联调 | 装真 `qbittorrent-nox` 跑起来，`QBT_LIVE=1 QBT_PASS=… go test ./internal/downloader/ -run TestQBitLive -v`：真登录 → 投递真实 `.torrent` → 认领回的 infohash 与种子 info 字典的 sha1 **逐字节相等** → 状态读到种子真实体积 4096 → 暂停/继续 → 磁力链直接返回 btih → 删除。**真机下载**：把同一台 qBittorrent 当引擎跑第二次端到端（HTTP 种子源），下载 100% 后停在 `seeding` → 对账按完成入库 `别当欧尼酱了 - S01E01.mkv`（硬链接 + 单集 NFO）✅ |
 | 通知真收包 | 本机 webhook 接收端记下真实 POST：`{"source":"suzu","title":"断种换链：…","body":"…","ts":…}`；一次演示里连续收到「已投递」「下载失败」「断种换链 ×2」「入库完成」四种 ✅ |
+| 已播完的番订阅时自动连往期 | 真实数据（蜜柑 #4020「向日葵马戏团」，7/4 开播、13 集、9/26 播完）：详情页标出「已播完」并把勾选框预勾上。脚本打接口（不带任何 backfill 字段）订阅 ANi 组 → 起点自动为 0 → **13 条全部投递、0 条被挡**（改之前只有 1 条：起点被定在第 13 集）✅ |
+| 订阅后补往期（不用删了重订） | 复现时留下的那条订阅（起点 13、24 条被挡）→ 面板出现「补下往期 24」→ 点一下 → 起点退到 0、被挡记录清零、下一轮把 **E1~E13 全补回来**（E13 已有任务，按"该集已有任务或已入库"跳过，不重复下载）✅ |
 | 番剧元数据迟到 | 打开详情页触发刮削后，磁盘上那份入库时写下的 `tvshow.nfo` 被就地补齐：`<plot>`（234 字真实简介）、`<rating>8.5</rating>`、`<thumb>poster.jpg</thumb>`，日志「番剧级元数据已对齐」✅ |
 | **armv7 二进制真的跑起来了** | `sudo apt-get install qemu-user-static` 后用 `qemu-arm-static bin/suzu-linux-armv7` 跑完整一套：日志 `目标=linux/arm`，本地面板 200（4 个片段全 200），一次轮询「条目=3 投递=3 过滤=0 耗时=39ms」，3 集全部硬链接入库（`links=2`）+ 每集 NFO，假 webhook 真收到 4 条通知，面板上的暂停/继续与手动轮询都是 303。原始日志见 `docs/live/armv7-qemu.log`、`docs/live/armv7-webhook.log` ✅ |
 | ARM 二进制里安全守卫同样生效 | 同一份 armv7 二进制加 `-listen 0.0.0.0:8649`（配置里没密码）→ 退出码 2 并打印那条中文错误 ✅ |

@@ -24,6 +24,7 @@
       </span>
       <span class="eta">{{$r.Next}}</span>
       <span class="acts">
+        {{if $r.Sub.Blocked}}<form method="post" action="/api/v1/subscriptions/{{$r.Sub.ID}}/backfill"><input type="hidden" name="next" value="/"><button type="submit" title="被「只跟新的」的起点挡住的那几集，源里其实还有。点一下退到第 1 集重新匹配。">补下往期 {{$r.Sub.Blocked}}</button></form>{{end}}
         <form method="post" action="/api/v1/subscriptions/{{$r.Sub.ID}}/poll"><button type="submit">刷新</button></form>
         <form method="post" action="/api/v1/subscriptions/{{$r.Sub.ID}}/toggle"><button type="submit">{{if $r.Sub.Enabled}}停用{{else}}启用{{end}}</button></form>
         <form method="post" action="/api/v1/subscriptions/{{$r.Sub.ID}}/delete"><button type="submit" class="danger">删除</button></form>

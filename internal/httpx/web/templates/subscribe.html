@@ -45,6 +45,7 @@
             {{if .Detail.B.AirText}}<span>放送 {{.Detail.B.AirText}}</span>{{end}}
             {{if .Detail.B.Episodes}}<span>共 {{.Detail.B.Episodes}} 集</span>{{end}}
             {{if .Detail.B.StartAt}}<span>开播 {{.Detail.B.StartAt}}</span>{{end}}
+            {{if .Detail.Finished}}<span class="tag">已播完</span>{{end}}
             <span class="mono">蜜柑 #{{.Detail.B.ID}}</span>
           </p>
           <p class="meta-line faint">
@@ -62,7 +63,12 @@
         <p class="hint">
           勾选要跟的字幕组，一个字幕组一条订阅，之后可以单独调间隔和过滤词。
           {{if .Detail.AutoLabel}}不勾选时按偏好自动挑 <b>{{.Detail.AutoLabel}}</b>。{{end}}
+          {{if .Detail.Finished}}
+          这部已经播完{{if .Detail.B.Episodes}}（共 {{.Detail.B.Episodes}} 集）{{end}}，默认<b>连往期一起下</b>；
+          只要后面新出的，把下面的勾去掉。
+          {{else}}
           默认只跟新出的集数，不会把往期一口气拉下来。
+          {{end}}
         </p>
         {{if .Detail.Options}}
         <ul class="sg-list">
@@ -82,7 +88,8 @@
           <button type="submit" class="primary">订阅选中的字幕组</button>
           <button type="submit" name="auto" value="1">按偏好自动挑一个</button>
           <span class="picker-fields">
-            <label class="check"><input type="checkbox" name="backfill" value="1"> 连往期一起下</label>
+            <label class="check"><input type="checkbox" name="backfill" value="1"{{if .Detail.Finished}} checked{{end}}> 连往期一起下</label>
+            <input type="hidden" name="backfill_chosen" value="1">
             <label>分组<input name="group" value="{{.Detail.B.Title}}" size="14"></label>
             <label>间隔<input name="interval_min" value="30" size="3"> 分钟</label>
           </span>
@@ -107,6 +114,7 @@
               {{if .B.AirText}}<span>放送 {{.B.AirText}}</span>{{end}}
               {{if .B.Episodes}}<span>共 {{.B.Episodes}} 集</span>{{end}}
               {{if .B.StartAt}}<span>开播 {{.B.StartAt}}</span>{{end}}
+              {{if .Finished}}<span class="tag">已播完</span>{{end}}
               <span class="mono">蜜柑 #{{.B.ID}}</span>
               {{if .Subbed}}<span class="tag">已订阅 {{.Subbed}} 条</span>{{end}}
             </p>
@@ -157,6 +165,7 @@
             </span>
           </span>
           <span class="subs-acts">
+            {{if .Blocked}}<form method="post" action="/api/v1/subscriptions/{{.ID}}/backfill"><input type="hidden" name="next" value="/subscribe"><button type="submit" title="这些集源里还有，只是被「只跟新的」的起点挡住了。点一下退到第 1 集重新匹配。">补下往期 {{.Blocked}}</button></form>{{end}}
             <form method="post" action="/api/v1/subscriptions/{{.ID}}/poll"><input type="hidden" name="next" value="/subscribe"><button type="submit">刷新</button></form>
             <form method="post" action="/api/v1/subscriptions/{{.ID}}/toggle"><input type="hidden" name="next" value="/subscribe"><button type="submit">{{if .Enabled}}停用{{else}}启用{{end}}</button></form>
             <form method="post" action="/api/v1/subscriptions/{{.ID}}/delete"><input type="hidden" name="next" value="/subscribe"><button type="submit" class="danger">删除</button></form>

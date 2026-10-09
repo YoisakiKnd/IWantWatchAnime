@@ -213,14 +213,38 @@ type SubscribeRequest struct {
 	IntervalMin int      // 轮询间隔，默认 30 分钟
 	AutoPick    int      // 自动挑几个字幕组，默认 1
 	StartEp     float64  // 只收 >= 该集数的条目；0 表示未指定
-	Backfill    bool     // true = 连往期一起下；默认只跟新的（首次轮询定起点）
+	Backfill    bool     // 勾了「连往期一起下」
+	// BackfillChosen 表示调用方是否明确表过态 —— 勾选框所在的页面总会带上它。
+	// 没表态时后端按番剧是否播完自动决定：对已播完的番，「只跟新的」等于一集都不给。
+	BackfillChosen bool
 }
 
 // SubscribeResult 是一键订阅的结果。
 type SubscribeResult struct {
-	Bangumi model.Bangumi
-	Created []model.Subscription
-	Skipped []string
+	Bangumi  model.Bangumi
+	Created  []model.Subscription
+	Skipped  []string
+	Backfill bool // 本次是否从第 1 集拉（含自动判定），面板据此补一句说明
+}
+
+// subscribeStartEp 决定一条新订阅的起始集数：0 = 从第 1 集拉，-1 = 首次轮询时
+// 从最新一集开始跟。
+//
+// 「只跟新的」这个默认对正在播的番很合理，但对已经播完的番是个陷阱：
+// 这时「最新一集」就是最后一集，等于一集都不给 —— 用户订阅一部完结番，
+// 期望的是把这部番拿全，结果一条没下（本项目的第一个真实投诉就是这个）。
+// 所以调用方没表态时看番剧状态：已播完就从第 1 集拉，还在播才只跟新的。
+func subscribeStartEp(req SubscribeRequest, b *model.Bangumi, now time.Time) float64 {
+	if req.StartEp != 0 {
+		return req.StartEp // 调用方自己指了集数，听它的
+	}
+	if req.Backfill {
+		return 0
+	}
+	if !req.BackfillChosen && b.Finished(now) {
+		return 0
+	}
+	return -1
 }
 
 // SubscribeBangumi 一键订阅：挑字幕组 → 建订阅 → 落调度 → 立刻拉一次。
@@ -303,15 +327,13 @@ func (p *Pipeline) SubscribeBangumi(ctx context.Context, req SubscribeRequest) (
 	if len(prefer) == 0 {
 		prefer = p.mikan.Prefer()
 	}
-	// 起始集数：默认 -1 = 首次轮询时从最新一集开始跟；
-	// 勾了「连往期一起下」才从第 1 集拉。
-	startEp := req.StartEp
-	if startEp == 0 {
-		if req.Backfill {
-			startEp = 0
-		} else {
-			startEp = -1
-		}
+	// 起始集数：默认 -1 = 首次轮询时从最新一集开始跟；勾了「连往期一起下」才从第 1 集拉。
+	// 番剧已经播完时这个默认会一集都不给，所以没表态时由 subscribeStartEp 自动改判。
+	startEp := subscribeStartEp(req, b, time.Now())
+	res.Backfill = startEp == 0
+	if res.Backfill && !req.Backfill {
+		p.log.Info("番剧已播完，本次订阅连往期一起下",
+			"番剧", b.Title, "总集数", b.Episodes, "放送开始", b.StartAt)
 	}
 	names := make([]string, 0, len(picked))
 	for _, sg := range picked {

@@ -76,6 +76,7 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("POST /api/v1/subscriptions/{id}/toggle", s.toggleSub)
 	mux.HandleFunc("POST /api/v1/subscriptions/{id}/delete", s.deleteSub)
 	mux.HandleFunc("POST /api/v1/subscriptions/{id}/poll", s.pollSub)
+	mux.HandleFunc("POST /api/v1/subscriptions/{id}/backfill", s.backfillSub)
 	mux.HandleFunc("POST /api/v1/tasks/{id}/{action}", s.controlTask)
 
 	return s.withAuth(mux)
@@ -292,6 +293,42 @@ func (s *Server) deleteSub(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) pollSub(w http.ResponseWriter, r *http.Request) {
 	s.p.PollNow(pathID(r))
+	redirectBack(w, r, "/")
+}
+
+// backfillSub 把一条已有订阅的起点退到第 1 集，补下往期。
+//
+// 为什么不能只改起始集数了事：被「集数低于起始集」挡掉的条目已经以
+// rejected 状态写进库了，而条目是按 guid 去重的 —— 光把集数改小，
+// 下一轮轮询会把它们当成「已处理过」跳过，用户改了设置却什么都没发生。
+// 所以这里先把这批记录清掉，再立刻拉一次。
+func (s *Server) backfillSub(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	id := pathID(r)
+	sub, err := s.st.GetSubscription(ctx, id)
+	if err != nil {
+		writeErr(w, http.StatusInternalServerError, err)
+		return
+	}
+	if sub == nil {
+		writeErr(w, http.StatusNotFound, errors.New("订阅不存在"))
+		return
+	}
+
+	sub.StartEp = 0
+	if err := s.st.UpdateSubscription(ctx, sub); err != nil {
+		writeErr(w, http.StatusInternalServerError, err)
+		return
+	}
+	cleared, err := s.st.ClearEpBlocked(ctx, id)
+	if err != nil {
+		writeErr(w, http.StatusInternalServerError, err)
+		return
+	}
+	s.p.UpsertSchedule(sub) // 调度里存的是订阅副本，同步一份
+	_ = s.st.Log(ctx, "poll", fmt.Sprintf("%s：补下往期（起点退到第 1 集，清掉 %d 条被挡记录）",
+		sub.Name, cleared))
+	s.p.PollNow(id)
 	redirectBack(w, r, "/")
 }
 

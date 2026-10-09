@@ -264,6 +264,46 @@ func (s *Store) UpdateSubscription(ctx context.Context, sub *model.Subscription)
 	return err
 }
 
+// ClearEpBlocked 删掉这条订阅里被「集数低于起始集」挡掉的条目记录，返回条数。
+//
+// 补下往期时必须先清掉它们：条目是按 guid 去重的，留着的话下一轮轮询会
+// 把它们当成「上一轮已处理过」直接跳过 —— 只把起始集数改小是补不回来的，
+// 这正是「改了起始集数却什么都没下」这类困惑的来源。
+func (s *Store) ClearEpBlocked(ctx context.Context, subID int64) (int64, error) {
+	res, err := s.db.ExecContext(ctx,
+		`DELETE FROM items WHERE sub_id = ? AND status = ? AND reason = ?`,
+		subID, string(model.ItemRejected), model.ReasonEpBelowStart)
+	if err != nil {
+		return 0, err
+	}
+	return res.RowsAffected()
+}
+
+// CountEpBlockedBySub 统计每条订阅被「集数低于起始集」挡掉了多少条，
+// 返回 subID → 条数。面板据此决定要不要给那一行显示「补下往期」按钮。
+//
+// 一次 GROUP BY 取全表，而不是每行一次查询：面板每次轮询都要打包全部状态，
+// 在 armv7 上省下的是几十次 SQLite 往返。
+func (s *Store) CountEpBlockedBySub(ctx context.Context) (map[int64]int, error) {
+	rows, err := s.db.QueryContext(ctx,
+		`SELECT sub_id, COUNT(*) FROM items WHERE status = ? AND reason = ? GROUP BY sub_id`,
+		string(model.ItemRejected), model.ReasonEpBelowStart)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	out := map[int64]int{}
+	for rows.Next() {
+		var subID int64
+		var n int
+		if err := rows.Scan(&subID, &n); err != nil {
+			return nil, err
+		}
+		out[subID] = n
+	}
+	return out, rows.Err()
+}
+
 // DeleteSubscription 删除订阅；条目与任务由外键级联清理。
 func (s *Store) DeleteSubscription(ctx context.Context, id int64) error {
 	_, err := s.db.ExecContext(ctx, `DELETE FROM subscriptions WHERE id = ?`, id)

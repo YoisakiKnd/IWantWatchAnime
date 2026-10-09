@@ -4,7 +4,10 @@
 // 时间格式差异（在 armv7 上少一次 time.Parse，也少一次内存分配）。
 package model
 
-import "time"
+import (
+	"strings"
+	"time"
+)
 
 // ItemStatus 表示抓到的条目在流水线中的状态。
 type ItemStatus string
@@ -72,6 +75,46 @@ type Bangumi struct {
 	Official  string     // 官方网站
 	Subgroups []Subgroup // 字幕组（含各自的 RSS）
 	FetchedAt time.Time  // 刮削时间，用于决定要不要刷新
+}
+
+// ReasonEpBelowStart 是「集数低于起始集」这条过滤原因。
+//
+// 单独定义成常量，是因为它同时被产生方（matcher 判定）和消费方
+// （补下往期时要按它清掉被挡的记录）引用：两边各写一遍字符串，
+// 迟早会在某次改文案时对不上，而那种错是静默的 —— 按钮点了没反应。
+const ReasonEpBelowStart = "集数低于起始集"
+
+// Finished 判断这部番是不是已经播完。
+//
+// 依据是蜜柑给的两个字段：放送开始与总集数。最后一集的首播时刻按
+// 「开播 + (总集数-1) 周」算，再留一天宽限 —— 深夜番在日本常是次日上线，
+// 字幕组还得压一遍再发布。两个字段缺一个就返回 false：判断不了时不猜，
+// 保持「只跟新的」这个保守默认，宁可少下也不要擅自把整部番拉下来。
+func (b *Bangumi) Finished(now time.Time) bool {
+	if b == nil || b.Episodes <= 0 || b.StartAt == "" {
+		return false
+	}
+	start, ok := ParseAirDate(b.StartAt)
+	if !ok {
+		return false
+	}
+	last := start.AddDate(0, 0, (b.Episodes-1)*7)
+	return now.After(last.AddDate(0, 0, 1))
+}
+
+// ParseAirDate 解析蜜柑的放送开始日期，形如 7/4/2026 —— 月在前。
+//
+// 月在前是实测出来的，不是猜的：同一批蜜柑数据里出现过 9/29/2023
+// （葬送的芙莉莲第一季）与 1/16/2026（第二季），29 和 16 都不可能是月份；
+// 且 2026-07-04 正是星期六，与该番页面上写的「放送 星期六」对得上。
+func ParseAirDate(s string) (time.Time, bool) {
+	s = strings.TrimSpace(s)
+	for _, layout := range []string{"1/2/2006", "2006-1-2", "2006/1/2"} {
+		if t, err := time.ParseInLocation(layout, s, time.Local); err == nil {
+			return t, true
+		}
+	}
+	return time.Time{}, false
 }
 
 // Subgroup 是一个字幕组及其在蜜柑上的 RSS 地址。

@@ -21,6 +21,10 @@ type SubView struct {
 	Episodes int    // 总集数，0 = 未知
 	Day      string // 放送日的单字，给面板的「放送日」竖排用：六 / 五 / …
 	HasCover bool   // 本地是否已有封面缓存
+
+	// Blocked 是被「集数低于起始集」挡掉的条目数。大于 0 时面板给这一行
+	// 显示「补下往期」：这些集已经在源里，只是被起点拦住了，能一键补回来。
+	Blocked int
 }
 
 // Overview 是面板需要的全部状态快照。
@@ -86,6 +90,11 @@ func (p *Pipeline) Overview(ctx context.Context) (*Overview, error) {
 	if err != nil {
 		return nil, err
 	}
+	// 被集数起点挡掉的条目数：整表一次 GROUP BY，面板据此决定显示不显示「补下往期」。
+	blockedBySub, err := p.st.CountEpBlockedBySub(ctx)
+	if err != nil {
+		return nil, err
+	}
 	pendingBySub := map[int64]int{}
 	for _, t := range tasks {
 		if !t.State.Finished() {
@@ -96,6 +105,7 @@ func (p *Pipeline) Overview(ctx context.Context) (*Overview, error) {
 	for _, s := range subs {
 		v := SubView{Subscription: s, NextPoll: next[s.ID]}
 		v.Pending = pendingBySub[s.ID]
+		v.Blocked = blockedBySub[s.ID]
 		// 番剧信息来自刮削表：一次全量读出（家用规模几十行），避免每行一次查询。
 		if s.MikanID > 0 {
 			if b, ok := shows[s.MikanID]; ok {
